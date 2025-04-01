@@ -14,4 +14,6 @@ class FOODRUMBLE_API AMenuGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+	AMenuGameModeBase();
 };
