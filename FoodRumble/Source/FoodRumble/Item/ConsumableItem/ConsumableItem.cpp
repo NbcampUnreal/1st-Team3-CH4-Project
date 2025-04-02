@@ -8,10 +8,11 @@ AConsumableItem::AConsumableItem()
 }
 
 
-void AConsumableItem::OnOverlap(AActor* OverlapActor)
+void AConsumableItem::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
 {
-	ActivateItem();
-	DestroyItem();
+
 }
 void AConsumableItem::ActivateItem()
 {

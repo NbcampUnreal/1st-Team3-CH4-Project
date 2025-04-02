@@ -17,11 +17,18 @@ ABaseItem::ABaseItem()
 void ABaseItem::BeginPlay()
 {
 	Super::BeginPlay();
+	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABaseItem::OnOverlap);
 	
 }
-void ABaseItem::OnOverlap(AActor* OverlapActor)
+void ABaseItem::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
 {
-
+	if (OtherActor && OtherActor != this)
+	{
+		ActivateItem();
+		DestroyItem();
+	}
 }
 void ABaseItem::ActivateItem()
 {
