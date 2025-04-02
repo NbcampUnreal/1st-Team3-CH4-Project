@@ -19,8 +19,8 @@ public:
 		UUserWidget* ResultWidgetInstance = CreateWidget<UUserWidget>(Controller, Widget);
 		if (IsValid(ResultWidgetInstance))
 		{
-			ResultWidgetInstance->AddToViewport();
 			Remove->RemoveFromParent();
+			ResultWidgetInstance->AddToViewport();
 		}
 	}
 
