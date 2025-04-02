@@ -5,7 +5,8 @@ ABaseItem::ABaseItem()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	RootComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RootComponent"));
+	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RootComponent"));
+	RootComponent = MeshComponent;
 
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
 	CollisionSphere->SetSphereRadius(100.f);

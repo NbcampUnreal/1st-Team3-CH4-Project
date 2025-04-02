@@ -9,6 +9,9 @@ UCLASS()
 class FOODRUMBLE_API ACoinItem : public ABaseItem
 {
 	GENERATED_BODY()
+
+public:
+	ACoinItem();
 	
 	virtual void OnOverlap(AActor* OverlapActor) override;
 

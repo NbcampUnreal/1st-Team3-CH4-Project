@@ -20,6 +20,9 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	UStaticMeshComponent* MeshComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Item")
 	USphereComponent* CollisionSphere;
 public:	
