@@ -10,4 +10,10 @@ class FOODRUMBLE_API ACoinItem : public ABaseItem
 {
 	GENERATED_BODY()
 	
+	virtual void OnOverlap(AActor* OverlapActor) override;
+
+	virtual void ActivateItem() override;
+
+
+	virtual void DestroyItem() override;
 };

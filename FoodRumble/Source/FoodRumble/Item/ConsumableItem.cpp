@@ -3,7 +3,7 @@
 AConsumableItem::AConsumableItem()
 {
 
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 }
 
@@ -14,10 +14,4 @@ void AConsumableItem::BeginPlay()
 	
 }
 
-
-void AConsumableItem::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
 

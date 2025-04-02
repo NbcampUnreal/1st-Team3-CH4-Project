@@ -3,8 +3,14 @@
 
 ABaseItem::ABaseItem()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
+	RootComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RootComponent"));
+
+	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
+	CollisionSphere->SetSphereRadius(100.f);
+	CollisionSphere->SetupAttachment(RootComponent);
+	
 }
 
 void ABaseItem::BeginPlay()
@@ -12,10 +18,17 @@ void ABaseItem::BeginPlay()
 	Super::BeginPlay();
 	
 }
-
-void ABaseItem::Tick(float DeltaTime)
+void ABaseItem::OnOverlap(AActor* OverlapActor)
 {
-	Super::Tick(DeltaTime);
+
+}
+void ABaseItem::ActivateItem()
+{
 
 }
 
+
+void ABaseItem::DestroyItem()
+{
+
+}
