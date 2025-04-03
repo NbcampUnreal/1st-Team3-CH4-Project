@@ -40,7 +40,7 @@ void ADonutActor::Tick(float DeltaTime)
 void ADonutActor::StartRolling()
 {
     bShouldMove = true;
-    UE_LOG(LogTemp, Warning, TEXT("StartRolling() called - Donut will start moving"));
+    
 }
 
 void ADonutActor::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -57,6 +57,7 @@ void ADonutActor::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimi
 
         GetWorldTimerManager().SetTimer(DestroyTimerHandle, this, &ADonutActor::DestroyDonut, 3.0f, false);
     }
+
 }
 
 void ADonutActor::DestroyDonut()

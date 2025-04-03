@@ -45,4 +45,5 @@ private:
 
     UPROPERTY(EditAnywhere, Category = "Donut Settings", meta = (ClampMin = "0.0"))
     float RollForce;
+
 };
