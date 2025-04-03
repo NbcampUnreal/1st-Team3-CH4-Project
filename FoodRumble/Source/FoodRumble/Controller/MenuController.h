@@ -12,6 +12,8 @@ class FOODRUMBLE_API AMenuController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	AMenuController();
+
 	virtual void BeginPlay() override;
 
 protected:
@@ -20,4 +22,10 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UUserWidget>StartGameHUDWidgetInstance;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget>MapSelectHUDWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget>MapSelectHUDWidgetInstance;
 };

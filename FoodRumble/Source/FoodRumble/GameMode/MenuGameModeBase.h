@@ -16,4 +16,13 @@ class FOODRUMBLE_API AMenuGameModeBase : public AGameModeBase
 	
 public:
 	AMenuGameModeBase();
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool GetIsEndLevel() { return bIsEndLevel; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetEndLevelTrue() { bIsEndLevel = true; }
+
+private:
+	bool bIsEndLevel;
 };
