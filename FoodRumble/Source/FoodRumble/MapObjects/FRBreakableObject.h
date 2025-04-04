@@ -17,16 +17,16 @@ public:
 
 	virtual void BeginPlay() override;
 
-protected:
-
 	UFUNCTION(BlueprintCallable)
 	void UpdateHitCount();
+	UFUNCTION(BlueprintCallable, Category = "Spawning")
+	void SetPoolManager(AFRObjectPoolingManager* CurrentPoolManager);
+	UFUNCTION(BlueprintCallable, Category = "State")
+	virtual void ResetObject();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSpawned();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnBroken();
-	UFUNCTION(BlueprintCallable, Category = "State")
-	virtual void ResetObject();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

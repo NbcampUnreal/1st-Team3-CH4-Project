@@ -16,11 +16,11 @@ public:
 	AFRObjectSpawner();
 
 	UFUNCTION(BlueprintCallable, Category = "Spawner")
-	TObjectPtr<AActor> SpawnAtIndex(int32 Index);
+	AActor* SpawnAtIndex(int32 Index);
 	
 	//Spawn Random for boss stage?
 	UFUNCTION(BlueprintCallable, Category = "Spawner")
-	TObjectPtr<AActor> SpawnRandom();
+	AActor* SpawnRandom();
 
 protected:
 	virtual void BeginPlay() override;

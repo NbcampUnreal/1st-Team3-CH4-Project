@@ -35,8 +35,18 @@ void AFRBreakableObject::UpdateHitCount()
 			OnBroken();
 			PoolManager->ReturnToPool(this);
 		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No PoolManager"))
+		}
 	}
 }
+
+void AFRBreakableObject::SetPoolManager(AFRObjectPoolingManager* CurrentPoolManager)
+{
+	PoolManager = CurrentPoolManager;
+}
+
 
 void AFRBreakableObject::ResetObject()
 {

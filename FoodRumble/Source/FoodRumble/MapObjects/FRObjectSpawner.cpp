@@ -8,7 +8,7 @@ AFRObjectSpawner::AFRObjectSpawner()
 
 }
 
-TObjectPtr<AActor> AFRObjectSpawner::SpawnAtIndex(int32 Index)
+AActor* AFRObjectSpawner::SpawnAtIndex(int32 Index)
 {
 	if (SpawnPoints.IsValidIndex(Index) && IsValid(SpawnPoints[Index]))
 	{
@@ -27,9 +27,10 @@ TObjectPtr<AActor> AFRObjectSpawner::SpawnAtIndex(int32 Index)
 				TObjectPtr<AFRBreakableObject> BreakableObj = Cast<AFRBreakableObject>(SpawnedActor);
 
 				if (IsValid(BreakableObj))
-				{
-					BreakableObj->OnSpawned();
+				{					
 					BreakableObj->ResetObject();
+					BreakableObj->OnSpawned();
+					BreakableObj->SetPoolManager(PoolManager);
 				}
 
 				SpawnedActor->SetActorHiddenInGame(false);
@@ -56,7 +57,7 @@ TObjectPtr<AActor> AFRObjectSpawner::SpawnAtIndex(int32 Index)
 	}
 }
 
-TObjectPtr<AActor> AFRObjectSpawner::SpawnRandom()
+AActor* AFRObjectSpawner::SpawnRandom()
 {
 	return TObjectPtr<AActor>();
 }
