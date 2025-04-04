@@ -19,9 +19,10 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 protected:
-	// 이동 관련 설정값
+	
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float MoveSpeed;
 
@@ -32,8 +33,9 @@ protected:
 	float DelayBeforeMove;
 
 private:
-	// 내부 상태
+	
 	FVector StartLocation;
 	float ElapsedTime;
 	bool bHasMoved;
+	float TimeSinceMoved;
 };

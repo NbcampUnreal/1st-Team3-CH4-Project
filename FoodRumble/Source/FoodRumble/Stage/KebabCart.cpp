@@ -1,4 +1,5 @@
 #include "KebabCart.h"
+#include "TimerManager.h"
 
 AKebabCart::AKebabCart()
 	: MoveSpeed(4000.0f)
@@ -6,6 +7,7 @@ AKebabCart::AKebabCart()
 	, DelayBeforeMove(10.0f)
 	, ElapsedTime(0.0f)
 	, bHasMoved(false)
+	, TimeSinceMoved(0.0f)
 {
 	PrimaryActorTick.bCanEverTick = true;
 }
@@ -23,6 +25,11 @@ void AKebabCart::Tick(float DeltaTime)
 
 	if (bHasMoved)
 	{
+		TimeSinceMoved += DeltaTime;
+		if (TimeSinceMoved >= 7.0f)
+		{
+			Destroy();
+		}
 		return;
 	}
 
@@ -41,5 +48,12 @@ void AKebabCart::Tick(float DeltaTime)
 	if (TraveledDistance >= MoveDistance)
 	{
 		bHasMoved = true;
+	}
+}
+void AKebabCart::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	if (OtherActor->ActorHasTag("Table"))
+	{
+		OtherActor->Destroy();
 	}
 }
