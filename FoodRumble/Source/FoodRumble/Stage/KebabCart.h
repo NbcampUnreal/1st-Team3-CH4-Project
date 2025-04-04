@@ -17,12 +17,11 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+
 public:
 	virtual void Tick(float DeltaTime) override;
-	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 protected:
-	
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float MoveSpeed;
 
@@ -33,9 +32,13 @@ protected:
 	float DelayBeforeMove;
 
 private:
-	
 	FVector StartLocation;
 	float ElapsedTime;
 	bool bHasMoved;
 	float TimeSinceMoved;
+
+	FTimerHandle DestroyTimerHandle;
+
+	UFUNCTION()
+	void DestroyKebab();
 };
