@@ -1,9 +1,11 @@
 #include "MapObjects/FRBreakableObject.h"
 #include "Components/SphereComponent.h"
+#include "FRObjectPoolingManager.h"
 
 AFRBreakableObject::AFRBreakableObject()
 	:HitCountToBreakeObj(3),
-	CurrentHitCount(0)
+	CurrentHitCount(0),
+	bIsBroken(false)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -22,16 +24,34 @@ void AFRBreakableObject::BeginPlay()
 	
 }
 
-void AFRBreakableObject::Tick(float DeltaTime)
+void AFRBreakableObject::UpdateHitCount()
 {
-	Super::Tick(DeltaTime);
+	CurrentHitCount++;
 
+	if (CurrentHitCount >= HitCountToBreakeObj && !bIsBroken)
+	{
+		if (IsValid(PoolManager))
+		{
+			OnBroken();
+			PoolManager->ReturnToPool(this);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No PoolManager"))
+		}
+	}
 }
 
-float AFRBreakableObject::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvnet, AController* EventInstigator, AActor* DamageCauser)
+void AFRBreakableObject::SetPoolManager(AFRObjectPoolingManager* CurrentPoolManager)
 {
-	return 0.0f;
+	PoolManager = CurrentPoolManager;
 }
 
+
+void AFRBreakableObject::ResetObject()
+{
+	CurrentHitCount = 0;
+	bIsBroken = false;
+}
 
 

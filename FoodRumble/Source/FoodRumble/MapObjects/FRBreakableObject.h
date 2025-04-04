@@ -5,6 +5,7 @@
 #include "FRBreakableObject.generated.h"
 
 class USphereComponent;
+class AFRObjectPoolingManager;
 
 UCLASS()
 class FOODRUMBLE_API AFRBreakableObject : public AActor
@@ -15,17 +16,15 @@ public:
 	AFRBreakableObject();
 
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
-	
-	virtual float TakeDamage(
-		float DamageAmount,
-		struct FDamageEvent const& DamageEvnet,
-		AController* EventInstigator,
-		AActor* DamageCauser)
-		override;
 
-protected:
-
+	UFUNCTION(BlueprintCallable)
+	void UpdateHitCount();
+	UFUNCTION(BlueprintCallable, Category = "Spawning")
+	void SetPoolManager(AFRObjectPoolingManager* CurrentPoolManager);
+	UFUNCTION(BlueprintCallable, Category = "State")
+	virtual void ResetObject();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSpawned();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnBroken();
 
@@ -39,10 +38,14 @@ public:
 	TObjectPtr<UStaticMeshComponent> StaticMeshComp;	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "BrokenObj|Components")
 	TObjectPtr<USphereComponent> SphereComp;
-
+		
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 CurrentHitCount;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool bIsBroken;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<AFRObjectPoolingManager> PoolManager;
 
 	
 
