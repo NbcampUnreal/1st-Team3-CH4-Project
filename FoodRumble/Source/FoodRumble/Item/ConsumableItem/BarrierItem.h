@@ -9,7 +9,7 @@ UCLASS()
 class FOODRUMBLE_API ABarrierItem : public AConsumableItem
 {
 	GENERATED_BODY()
-	
+
 
 public:
 	ABarrierItem();

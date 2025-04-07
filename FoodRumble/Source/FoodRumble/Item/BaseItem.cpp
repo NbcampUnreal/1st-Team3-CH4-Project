@@ -7,18 +7,20 @@ ABaseItem::ABaseItem()
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RootComponent"));
 	RootComponent = MeshComponent;
-
+	//for overlap collision
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
 	CollisionSphere->SetSphereRadius(100.f);
 	CollisionSphere->SetupAttachment(RootComponent);
-	
+
+	NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
+	NiagaraComponent->SetupAttachment(RootComponent);
 }
 
 void ABaseItem::BeginPlay()
 {
 	Super::BeginPlay();
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABaseItem::OnOverlap);
-	
+
 }
 void ABaseItem::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
@@ -30,6 +32,7 @@ void ABaseItem::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 		DestroyItem();
 	}
 }
+
 void ABaseItem::ActivateItem()
 {
 
