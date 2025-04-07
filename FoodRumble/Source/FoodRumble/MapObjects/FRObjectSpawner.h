@@ -22,6 +22,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Spawner")
 	AActor* SpawnRandom();
 
+	UFUNCTION()
+	void ClearSlot(int32 Index);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -30,5 +33,7 @@ public:
 	TObjectPtr<AFRObjectPoolingManager> PoolManager;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawner")
 	TArray<TObjectPtr<AActor>> SpawnPoints;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawner")
+	TArray<TObjectPtr<AActor>> SpawnedObj;
 	
 };

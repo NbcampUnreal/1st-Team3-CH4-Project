@@ -6,6 +6,7 @@
 
 class USphereComponent;
 class AFRObjectPoolingManager;
+class AFRObjectSpawner;
 
 UCLASS()
 class FOODRUMBLE_API AFRBreakableObject : public AActor
@@ -38,15 +39,14 @@ public:
 	TObjectPtr<UStaticMeshComponent> StaticMeshComp;	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "BrokenObj|Components")
 	TObjectPtr<USphereComponent> SphereComp;
+	TObjectPtr<AFRObjectPoolingManager> PoolManager;
+	int32 ObjIndex;
+	TObjectPtr<AFRObjectSpawner> ObjSpawner;
 		
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 CurrentHitCount;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	bool bIsBroken;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<AFRObjectPoolingManager> PoolManager;
-
 	
-
 };
