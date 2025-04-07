@@ -28,22 +28,23 @@ void AFRBreakableObject::BeginPlay()
 
 void AFRBreakableObject::UpdateHitCount()
 {
+	OnHit();
 	CurrentHitCount++;
 
 	if (CurrentHitCount >= HitCountToBreakeObj && !bIsBroken)
 	{
 		if (IsValid(PoolManager))
 		{			
-			/*if (IsValid(ObjSpawner))
+			if (IsValid(ObjSpawner))
 			{
 				OnBroken();				
 				PoolManager->ReturnToPool(this);
-				ObjSpawner->ClearSlot(ObjIndex);
+				ObjSpawner->NotifyObjReturned(ObjIndex);
 			}
 			else
 			{
 				UE_LOG(LogTemp, Warning, TEXT("No ObjSpawner"))
-			}*/
+			}
 		}
 		else
 		{

@@ -27,6 +27,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSpawned();
 	UFUNCTION(BlueprintImplementableEvent)
+	void OnHit();
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnBroken();
 
 public:
