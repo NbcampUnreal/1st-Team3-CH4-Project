@@ -5,13 +5,7 @@ AFoodCoinItem::AFoodCoinItem()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-void AFoodCoinItem::BeginPlay()
+void AFoodCoinItem::ActivateItem_Implementation(AActor* TargetActor)
 {
-	Super::BeginPlay();
 
-}
-
-void AFoodCoinItem::ActivateItem()
-{
-	UE_LOG(LogTemp, Warning, TEXT("fruit ate"));
 }

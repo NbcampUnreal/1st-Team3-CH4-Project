@@ -11,12 +11,13 @@ class FOODRUMBLE_API AFoodCoinItem : public ABaseItem
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Item")
+	UDataTable* ItemDataTable;
+
+
 	AFoodCoinItem();
 
+
 protected:
-	virtual void BeginPlay() override;
-
-public:
-	virtual void ActivateItem() override;
-
+	virtual void ActivateItem_Implementation(AActor* TargetActor) override;
 };

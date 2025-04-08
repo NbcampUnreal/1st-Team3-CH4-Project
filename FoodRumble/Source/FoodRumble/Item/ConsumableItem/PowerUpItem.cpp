@@ -1,5 +1,6 @@
 #include "Item/ConsumableItem/PowerUpItem.h"
-
+#include "GameFramework/Character.h"
+#include "Item/ConsumableItem/PowerUpManagerComponent.h"
 
 APowerUpItem::APowerUpItem()
 {
@@ -12,17 +13,26 @@ APowerUpItem::APowerUpItem()
 }
 
 
-void APowerUpItem::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	bool bFromSweep, const FHitResult& SweepResult)
+void APowerUpItem::ActivateItem_Implementation(AActor* TargetActor)
 {
+	UE_LOG(LogTemp, Warning, TEXT("[ActiItemPower] ActivateItem_Implementation called"));
 
-}
-void APowerUpItem::ActivateItem()
-{
+	if (!TargetActor) return;
 
-}
-void APowerUpItem::DestroyItem()
-{
-
+	ACharacter* Player = Cast<ACharacter>(TargetActor);
+	if (Player)
+	{
+		UPowerUpManagerComponent* PowerUpComp = Player->FindComponentByClass<UPowerUpManagerComponent>();
+		if (PowerUpComp)
+		{
+			//Add Player To the list(PoweredUpPlayer)
+			PowerUpComp->AddPoweredUpPlayer(Player);
+			UE_LOG(LogTemp, Warning, TEXT("PowerUp Applied to : %s"), *Player->GetName());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("No PowerUpManagerComponent found on %s"), *Player->GetName());
+		}
+	}
+	
 }
