@@ -1,6 +1,7 @@
 #include "MapObjects/FRBreakableObject.h"
 #include "Components/SphereComponent.h"
 #include "FRObjectPoolingManager.h"
+#include "FRObjectSpawner.h"
 
 AFRBreakableObject::AFRBreakableObject()
 	:HitCountToBreakeObj(3),
@@ -10,6 +11,7 @@ AFRBreakableObject::AFRBreakableObject()
 	PrimaryActorTick.bCanEverTick = false;
 
 	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	RootComponent = RootComp;
 
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	StaticMeshComp->SetupAttachment(RootComp);
@@ -26,14 +28,23 @@ void AFRBreakableObject::BeginPlay()
 
 void AFRBreakableObject::UpdateHitCount()
 {
+	OnHit();
 	CurrentHitCount++;
 
 	if (CurrentHitCount >= HitCountToBreakeObj && !bIsBroken)
 	{
 		if (IsValid(PoolManager))
-		{
-			OnBroken();
-			PoolManager->ReturnToPool(this);
+		{			
+			if (IsValid(ObjSpawner))
+			{
+				OnBroken();				
+				PoolManager->ReturnToPool(this);
+				ObjSpawner->NotifyObjReturned(ObjIndex);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("No ObjSpawner"))
+			}
 		}
 		else
 		{
