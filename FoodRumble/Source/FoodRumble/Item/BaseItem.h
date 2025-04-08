@@ -22,11 +22,6 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
-	////after spawning item
-	//UPROPERTY()
-	//ASpawnVolume* OwnerSpawnVolume;
-	//UPROPERTY()
-	//FVector MySpawnLocation;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
@@ -38,14 +33,26 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	UNiagaraComponent* NiagaraComponent;
 
+
+
+
 public:
+	//for ovelap event
+	UPROPERTY(BlueprintReadOnly)
+	AActor* CachedActor;
+
+
 	UFUNCTION()
 	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 		bool bFromSweep, const FHitResult& SweepResult);
 
-	virtual void ActivateItem();
+	UFUNCTION(BlueprintNativeEvent)
+	void ActivateItem(AActor* TargetActor);
 
+	virtual void ActivateItem_Implementation(AActor* TargetActor);
+
+	UFUNCTION(BlueprintCallable)
 	virtual void DestroyItem();
 
 };
