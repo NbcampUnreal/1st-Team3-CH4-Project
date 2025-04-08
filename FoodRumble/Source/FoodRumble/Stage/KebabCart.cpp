@@ -1,19 +1,23 @@
 #include "KebabCart.h"
+#include "TimerManager.h"
+#include "GameFramework/Actor.h"
+#include "Kismet/GameplayStatics.h"
 
 AKebabCart::AKebabCart()
-	: MoveSpeed(4000.0f)
-	, MoveDistance(1000.0f)
+	: MoveSpeed(1750.0f)
+	, MoveDistance(3750.0f)
 	, DelayBeforeMove(10.0f)
 	, ElapsedTime(0.0f)
 	, bHasMoved(false)
+	, TimeSinceMoved(0.0f)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	SetActorEnableCollision(true); // 꼭 충돌 활성화!
 }
 
 void AKebabCart::BeginPlay()
 {
 	Super::BeginPlay();
-
 	StartLocation = GetActorLocation();
 }
 
@@ -23,6 +27,11 @@ void AKebabCart::Tick(float DeltaTime)
 
 	if (bHasMoved)
 	{
+		TimeSinceMoved += DeltaTime;
+		if (TimeSinceMoved >= 7.0f)
+		{
+			DestroyKebab(); // 7초 후 사라짐
+		}
 		return;
 	}
 
@@ -42,4 +51,11 @@ void AKebabCart::Tick(float DeltaTime)
 	{
 		bHasMoved = true;
 	}
+}
+
+
+
+void AKebabCart::DestroyKebab()
+{
+	Destroy();
 }

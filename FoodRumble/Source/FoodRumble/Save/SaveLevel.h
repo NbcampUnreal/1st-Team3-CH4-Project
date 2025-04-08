@@ -22,5 +22,7 @@ public:
 	bool bIsLevel3Lock;
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsLevel4Lock;
-
+	
+	/*UPROPERTY(BlueprintReadWrite)
+	bool bIsRestart;*/
 };

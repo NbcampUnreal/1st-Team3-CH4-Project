@@ -1,13 +1,17 @@
 #include "MapObjects/FRBreakableObject.h"
 #include "Components/SphereComponent.h"
+#include "FRObjectPoolingManager.h"
+#include "FRObjectSpawner.h"
 
 AFRBreakableObject::AFRBreakableObject()
 	:HitCountToBreakeObj(3),
-	CurrentHitCount(0)
+	CurrentHitCount(0),
+	bIsBroken(false)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
 	RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	RootComponent = RootComp;
 
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	StaticMeshComp->SetupAttachment(RootComp);
@@ -22,16 +26,43 @@ void AFRBreakableObject::BeginPlay()
 	
 }
 
-void AFRBreakableObject::Tick(float DeltaTime)
+void AFRBreakableObject::UpdateHitCount()
 {
-	Super::Tick(DeltaTime);
+	OnHit();
+	CurrentHitCount++;
 
+	if (CurrentHitCount >= HitCountToBreakeObj && !bIsBroken)
+	{
+		if (IsValid(PoolManager))
+		{			
+			if (IsValid(ObjSpawner))
+			{
+				OnBroken();				
+				PoolManager->ReturnToPool(this);
+				ObjSpawner->NotifyObjReturned(ObjIndex);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("No ObjSpawner"))
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No PoolManager"))
+		}
+	}
 }
 
-float AFRBreakableObject::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvnet, AController* EventInstigator, AActor* DamageCauser)
+void AFRBreakableObject::SetPoolManager(AFRObjectPoolingManager* CurrentPoolManager)
 {
-	return 0.0f;
+	PoolManager = CurrentPoolManager;
 }
 
+
+void AFRBreakableObject::ResetObject()
+{
+	CurrentHitCount = 0;
+	bIsBroken = false;
+}
 
 
