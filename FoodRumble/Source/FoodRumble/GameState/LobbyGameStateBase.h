@@ -12,11 +12,5 @@ UCLASS()
 class FOODRUMBLE_API ALobbyGameStateBase : public AGameStateBase
 {
 	GENERATED_BODY()
-public:
-	UFUNCTION()
-	void OnRep_UpdateUI();
 
-private:
-	UPROPERTY(ReplicatedUsing = OnRep_UpdateUI)
-	TArray<ALobbyCharacter*> LobbyPlayerLists;
 };
