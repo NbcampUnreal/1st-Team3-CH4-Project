@@ -33,8 +33,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	UNiagaraComponent* NiagaraComponent;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Effect")
-	//UStaticMeshComponent* BubbleMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Effect")
+	UStaticMeshComponent* BubbleMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Item")
 	UDataTable* ItemDataTable;
 	
