@@ -1,5 +1,5 @@
 #include "MapObjects/FRBreakableObject.h"
-#include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 #include "FRObjectPoolingManager.h"
 #include "FRObjectSpawner.h"
 
@@ -16,8 +16,8 @@ AFRBreakableObject::AFRBreakableObject()
 	StaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	StaticMeshComp->SetupAttachment(RootComp);
 
-	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
-	SphereComp->SetupAttachment(RootComp);
+	BoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
+	BoxComp->SetupAttachment(RootComp);
 }
 
 void AFRBreakableObject::BeginPlay()

@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "FRBreakableObject.generated.h"
 
-class USphereComponent;
+class UBoxComponent;
 class AFRObjectPoolingManager;
 class AFRObjectSpawner;
 
@@ -40,7 +40,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "BrokenObj|Components")
 	TObjectPtr<UStaticMeshComponent> StaticMeshComp;	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "BrokenObj|Components")
-	TObjectPtr<USphereComponent> SphereComp;
+	TObjectPtr<UBoxComponent> BoxComp;
 	TObjectPtr<AFRObjectPoolingManager> PoolManager;
 	int32 ObjIndex;
 	TObjectPtr<AFRObjectSpawner> ObjSpawner;
