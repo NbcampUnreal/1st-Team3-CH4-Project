@@ -23,7 +23,7 @@ void ASpawnVolume::BeginPlay()
 
 void ASpawnVolume::StartSpawning()
 {
-	float RandomSpawnTime = FMath::FRandRange(4.0f, 10.0f);
+	float RandomSpawnTime = FMath::FRandRange(3.0f, 6.0f);
 
 	GetWorldTimerManager().SetTimer(
 		SpawnTimerHandle,

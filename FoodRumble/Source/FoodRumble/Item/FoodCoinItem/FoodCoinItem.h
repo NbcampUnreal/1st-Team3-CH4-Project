@@ -11,9 +11,6 @@ class FOODRUMBLE_API AFoodCoinItem : public ABaseItem
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Item")
-	UDataTable* ItemDataTable;
-
 
 	AFoodCoinItem();
 

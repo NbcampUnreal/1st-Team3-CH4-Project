@@ -34,5 +34,9 @@ void APowerUpItem::ActivateItem_Implementation(AActor* TargetActor)
 			UE_LOG(LogTemp, Error, TEXT("No PowerUpManagerComponent found on %s"), *Player->GetName());
 		}
 	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[powerupactiv]No player"));
+	}
 	
 }
