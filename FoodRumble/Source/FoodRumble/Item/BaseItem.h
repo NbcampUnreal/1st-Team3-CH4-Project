@@ -33,6 +33,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	UNiagaraComponent* NiagaraComponent;
 
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Effect")
+	//UStaticMeshComponent* BubbleMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Item")
+	UDataTable* ItemDataTable;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Item")
+	FName ItemRowName;
 
 
 
@@ -41,13 +48,15 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	AActor* CachedActor;
 
+	UFUNCTION()
+	void StopPhysics();
 
 	UFUNCTION()
 	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 		bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	void ActivateItem(AActor* TargetActor);
 
 	virtual void ActivateItem_Implementation(AActor* TargetActor);
