@@ -17,7 +17,11 @@ ASpawnVolume::ASpawnVolume()
 void ASpawnVolume::BeginPlay()
 {
 	Super::BeginPlay();
-	StartSpawning();
+	if (HasAuthority())
+	{
+		StartSpawning();
+	}
+	
 }
 
 
@@ -63,6 +67,7 @@ void ASpawnVolume::SpawnRandomItem()
 		if (UClass* ActualClass = SelectedRow->ItemClass.Get())
 		{
 			SpawnItem(ActualClass);
+			//UE_LOG(LogTemp, Warning, TEXT("SpawnLocation: %s"), *SpawnLocation.ToString());
 		}
 	}
 
@@ -108,7 +113,7 @@ FItemSpawnRow* ASpawnVolume::GetRandomItem() const
 //spawns Item from ItemClass
 void ASpawnVolume::SpawnItem(TSubclassOf<AActor> ItemClass)
 {
-	if (!ItemClass) return;
+	if (!HasAuthority() || !ItemClass) return;
 
 	FVector SpawnLocation = GetRandomPointInVolume();
 

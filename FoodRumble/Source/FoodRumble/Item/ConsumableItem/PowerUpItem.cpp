@@ -4,6 +4,8 @@
 
 APowerUpItem::APowerUpItem()
 {
+	bReplicates = true;
+
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem>NiagaraEffectAsset(TEXT("/Game/YJ_Item/FX/sA_PickupSet_1/Fx/NiagaraSystems/NS_Pickup_2.NS_Pickup_2"));
 	if (NiagaraEffectAsset.Succeeded())
 	{

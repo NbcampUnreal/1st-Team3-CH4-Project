@@ -2,5 +2,6 @@
 
 AConsumableItem::AConsumableItem()
 {
-
+	bReplicates = true;
+	SetReplicates(true);
 }
