@@ -5,6 +5,8 @@
 #include "Character/NewPlayerState.h"
 #include "Item/FoodCoinItem/PlayerCoinComponent.h"
 
+#include "Components/SceneComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -13,6 +15,8 @@
 #include "Net/UnrealNetwork.h"
 
 ANewCharacter::ANewCharacter()
+	:bCanAttack(true)
+	, AttackMontagePlayTime(0.f)
 {
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -46,6 +50,9 @@ ANewCharacter::ANewCharacter()
 
 	Accessory = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Accessory"));
 	Accessory->SetupAttachment(GetMesh());
+
+	Hair = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hair"));
+	Hair->SetupAttachment(GetMesh());
 }
 
 void ANewCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -56,6 +63,7 @@ void ANewCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& 
 	DOREPLIFETIME(ThisClass, ShirtsIndex);
 	DOREPLIFETIME(ThisClass, PantsIndex);
 	DOREPLIFETIME(ThisClass, AccessoryIndex);
+	DOREPLIFETIME(ThisClass, HairIndex);
 }
 
 
@@ -91,6 +99,8 @@ void ANewCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	EIC->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ThisClass::Jump);
 	EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &ThisClass::StopJumping);
+
+	EIC->BindAction(AttackAction, ETriggerEvent::Started, this, &ThisClass::HandleAttackInput);
 }
 
 void ANewCharacter::BeginPlay()
@@ -114,6 +124,11 @@ void ANewCharacter::BeginPlay()
 	else
 	{
 		ServerRPCSetRandomCostume();
+	}
+
+	if (IsValid(AttackMontage))
+	{
+		AttackMontagePlayTime = AttackMontage->GetPlayLength();
 	}
 }
 
@@ -141,6 +156,10 @@ void ANewCharacter::ApplyCostume()
 	{
 		Accessory->SetSkeletalMesh(RandomAccessory[AccessoryIndex]);
 	}
+	if (RandomHair.IsValidIndex(HairIndex))
+	{
+		Hair->SetSkeletalMesh(RandomHair[HairIndex]);
+	}
 }
 
 void ANewCharacter::ServerRPCSetRandomCostume_Implementation()
@@ -149,8 +168,115 @@ void ANewCharacter::ServerRPCSetRandomCostume_Implementation()
 	ShirtsIndex = RandomShirts.IsEmpty() ? -1 : FMath::RandRange(0, RandomShirts.Num() - 1);
 	PantsIndex = RandomPants.IsEmpty() ? -1 : FMath::RandRange(0, RandomPants.Num() - 1);
 	AccessoryIndex = RandomAccessory.IsEmpty() ? -1 : FMath::RandRange(0, RandomAccessory.Num() - 1);
+	HairIndex = RandomHair.IsEmpty() ? -1 : FMath::RandRange(0, RandomHair.Num() - 1);
 
 	ApplyCostume();
+}
+
+void ANewCharacter::CheckAttackHit()
+{
+	if (HasAuthority())
+	{
+		TArray<FHitResult> OutHitResults;
+		TSet<ACharacter*> DamagedCharacters;
+		FCollisionQueryParams Params(NAME_None, false, this);
+
+		const float MeleeAttackRange = 50.f;
+		const float MeleeAttackRadius = 50.f;
+		const float MeleeAttackDamage = 10.f;
+
+		const FVector Forward = GetActorForwardVector();
+		const FVector Start = GetActorLocation() + Forward * GetCapsuleComponent()->GetScaledCapsuleRadius();
+		const FVector End = Start + GetActorForwardVector() * MeleeAttackRange;
+
+		bool bIsHitDetected = GetWorld()->SweepMultiByChannel(OutHitResults, Start, End, FQuat::Identity, ECC_Camera, FCollisionShape::MakeSphere(MeleeAttackRadius), Params);
+		if (bIsHitDetected)
+		{
+			for (auto const& OutHitResult : OutHitResults)
+			{
+				ACharacter* DamagedCharacter = Cast<ACharacter>(OutHitResult.GetActor());
+				if (IsValid(DamagedCharacter))
+				{
+					DamagedCharacters.Add(DamagedCharacter);
+				}
+			}			
+		}		
+		FColor DrawColor = bIsHitDetected ? FColor::Green : FColor::Red;		
+		MulticastRPCDrawDebugSphere(DrawColor, Start, End, Forward);
+	}
+}
+
+
+void ANewCharacter::ServerRPCAttack_Implementation()
+{
+	MulticastRPCAttack();
+}
+
+void ANewCharacter::MulticastRPCAttack_Implementation()
+{	
+	if (HasAuthority())
+	{
+		bCanAttack = false;
+
+		OnRep_CanAttack();
+
+		FTimerHandle TimerHandle;
+		GetWorldTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda
+		([&]() -> void
+			{void PlayMeleeAttackMontage();
+				bCanAttack = true;
+				OnRep_CanAttack();
+			}), AttackMontagePlayTime, false
+		);
+	}
+	PlayMeleeAttackMontage();
+}
+
+void ANewCharacter::MulticastRPCDrawDebugSphere_Implementation(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward)
+{
+	const float MeleeAttackRange = 50.f;
+	const float MeleeAttackRadius = 50.f;
+	FVector CapsuleOrigin = TraceStart + (TraceEnd - TraceStart) * 0.5f;
+	float CapsuleHalfHeight = MeleeAttackRange * 0.5f;
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, MeleeAttackRadius, FRotationMatrix::MakeFromZ(Forward).ToQuat(), DrawColor, false, 5.f);
+}
+
+
+void ANewCharacter::OnRep_CanAttack()
+{
+	if (bCanAttack)
+	{
+		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	}
+	else
+	{
+		GetCharacterMovement()->SetMovementMode(MOVE_None);
+	}
+}
+
+void ANewCharacter::PlayMeleeAttackMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	
+	if (IsValid(AnimInstance))
+	{
+		AnimInstance->StopAllMontages(0.f);
+		AnimInstance->Montage_Play(AttackMontage);
+	}
+
+	//child actor play montage
+	const TArray<USceneComponent*> ChildrenArray = GetMesh()->GetAttachChildren();
+
+	for (USceneComponent* Child : ChildrenArray)
+	{		
+		if (USkeletalMeshComponent* SubMesh = Cast<USkeletalMeshComponent>(Child))
+		{
+			if (UAnimInstance* AnimInst = SubMesh->GetAnimInstance())
+			{
+				AnimInst->Montage_Play(AttackMontage);
+			}
+		}
+	}
 }
 
 void ANewCharacter::HandleMoveInput(const FInputActionValue& InValue)
@@ -185,5 +311,13 @@ void ANewCharacter::HandleLookInput(const FInputActionValue& InValue)
 
 	AddControllerYawInput(InLookVector.X);
 	AddControllerPitchInput(InLookVector.Y);
+}
+
+void ANewCharacter::HandleAttackInput(const FInputActionValue& InValue)
+{
+	if (bCanAttack && !GetCharacterMovement()->IsFalling())
+	{
+		ServerRPCAttack();
+	}
 }
 

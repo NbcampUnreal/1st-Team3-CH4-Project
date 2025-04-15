@@ -96,8 +96,10 @@ void ANewGM::OnMainTimerElapsed()
 
 			if (IsValid(SpawnVolumeClass))
 			{				
-				ASpawnVolume* SpawnVolumeInstance = GetWorld()->SpawnActor<ASpawnVolume>(SpawnVolumeClass, FVector(0.f, 0.f, 0.f), FRotator::ZeroRotator);
-				//SpawnVolume->StartSpawning();				
+				for (int32 i = 0; i < SpawnLocations.Num(); ++i)
+				{
+					GetWorld()->SpawnActor<ASpawnVolume>(SpawnVolumeClass, SpawnLocations[i] + FVector(0.f, 0.f, 5.f), FRotator::ZeroRotator);
+				}
 			}
 			NotifyToAllPlayerTime(TimerString);
 			break;

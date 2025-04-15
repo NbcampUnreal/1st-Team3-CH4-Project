@@ -74,6 +74,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Components")
 	TObjectPtr<USkeletalMeshComponent> Accessory;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Components")
+	TObjectPtr<USkeletalMeshComponent> Hair;
+
 	UPROPERTY(ReplicatedUsing = OnRep_CostumeChanged)
 	int32 FaceIndex;
 
@@ -85,6 +88,39 @@ public:
 
 	UPROPERTY(ReplicatedUsing = OnRep_CostumeChanged)
 	int32 AccessoryIndex;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CostumeChanged)
+	int32 HairIndex;
+#pragma endregion
+
+#pragma region Attack
+
+public:
+	void CheckAttackHit();
+
+protected:
+	UFUNCTION(Server,Reliable)
+	void ServerRPCAttack();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCAttack();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCDrawDebugSphere(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward);
+
+	UFUNCTION()
+	void OnRep_CanAttack();
+
+	void PlayMeleeAttackMontage();
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage>AttackMontage;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CanAttack)
+	bool bCanAttack;
+
+	float AttackMontagePlayTime;
+
 #pragma endregion
 
 #pragma region Input
@@ -93,18 +129,23 @@ private:
 
 	void HandleLookInput(const FInputActionValue& InValue);
 
+	void HandleAttackInput(const FInputActionValue& InValue);
+
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DXPlayerCharacter|Input")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
 	TObjectPtr<UInputMappingContext> InputMappingContext;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DXPlayerCharacter|Input")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
 	TObjectPtr<UInputAction> MoveAction;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DXPlayerCharacter|Input")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
 	TObjectPtr<UInputAction> LookAction;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DXPlayerCharacter|Input")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
 	TObjectPtr<UInputAction> JumpAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
+	TObjectPtr<UInputAction> AttackAction;
 
 #pragma endregion
 
@@ -126,6 +167,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Costume")
 	TArray<TObjectPtr<USkeletalMesh>> RandomAccessory;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Costume")
+	TArray<TObjectPtr<USkeletalMesh>> RandomHair;
 
 #pragma endregion
 };

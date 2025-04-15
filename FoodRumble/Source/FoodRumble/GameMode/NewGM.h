@@ -47,6 +47,9 @@ public:
 
 	int32 MainLoopPlayingTime = 20;
 	int32 RemainMainLoopPlayingTime = 20;
+	
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	TArray<FVector> SpawnLocations;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
