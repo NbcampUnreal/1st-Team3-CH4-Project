@@ -3,6 +3,7 @@
 
 ASpawnVolume::ASpawnVolume()
 {
+	bReplicates = true;
 
 	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	SetRootComponent(Scene);
@@ -17,7 +18,10 @@ ASpawnVolume::ASpawnVolume()
 void ASpawnVolume::BeginPlay()
 {
 	Super::BeginPlay();
-	StartSpawning();
+	if (HasAuthority())
+	{
+		StartSpawning();
+	}
 }
 
 
@@ -108,7 +112,7 @@ FItemSpawnRow* ASpawnVolume::GetRandomItem() const
 //spawns Item from ItemClass
 void ASpawnVolume::SpawnItem(TSubclassOf<AActor> ItemClass)
 {
-	if (!ItemClass) return;
+	if (!HasAuthority()|| !ItemClass) return;
 
 	FVector SpawnLocation = GetRandomPointInVolume();
 

@@ -1,0 +1,131 @@
+
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Character.h"
+#include "InputActionValue.h"
+#include "NewCharacter.generated.h"
+
+class UCameraComponent;
+class USkeletameshComponent;
+class USpringArmComponent;
+class UInputMappingContext;
+class UInputAction;
+class UPlayerCoinComponent;
+
+UCLASS()
+class FOODRUMBLE_API ANewCharacter : public ACharacter
+{
+	GENERATED_BODY()
+
+public:
+	ANewCharacter();
+
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+
+#pragma region Overrides Character
+
+public:
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+	virtual void BeginPlay() override;
+
+#pragma endregion
+
+#pragma region PlayerCharacter Components
+
+public:
+	FORCEINLINE USpringArmComponent* GetSpringArm() const { return SpringArm; }
+
+	FORCEINLINE UCameraComponent* GetCamera() const { return Camera; }
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Components")
+	TObjectPtr<USpringArmComponent> SpringArm;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Components")
+	TObjectPtr<UCameraComponent> Camera;
+#pragma endregion
+
+#pragma region Costume
+public:
+	UFUNCTION()
+	void OnRep_CostumeChanged();
+
+	void ApplyCostume();
+
+	UFUNCTION(Server,Reliable)
+	void ServerRPCSetRandomCostume();
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Components")
+	TObjectPtr<USkeletalMeshComponent> Face;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Components")
+	TObjectPtr<USkeletalMeshComponent> Shirts;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Components")
+	TObjectPtr<USkeletalMeshComponent> Pants;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Components")
+	TObjectPtr<USkeletalMeshComponent> Accessory;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CostumeChanged)
+	int32 FaceIndex;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CostumeChanged)
+	int32 ShirtsIndex;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CostumeChanged)
+	int32 PantsIndex;
+
+	UPROPERTY(ReplicatedUsing = OnRep_CostumeChanged)
+	int32 AccessoryIndex;
+#pragma endregion
+
+#pragma region Input
+private:
+	void HandleMoveInput(const FInputActionValue& InValue);
+
+	void HandleLookInput(const FInputActionValue& InValue);
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DXPlayerCharacter|Input")
+	TObjectPtr<UInputMappingContext> InputMappingContext;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DXPlayerCharacter|Input")
+	TObjectPtr<UInputAction> MoveAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DXPlayerCharacter|Input")
+	TObjectPtr<UInputAction> LookAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DXPlayerCharacter|Input")
+	TObjectPtr<UInputAction> JumpAction;
+
+#pragma endregion
+
+#pragma region CollectItem
+	TObjectPtr<UPlayerCoinComponent> CollectCoin;
+
+#pragma endregion
+
+#pragma region RandomItem
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Costume")
+	TArray<TObjectPtr<USkeletalMesh>> RandomFace;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Costume")
+	TArray<TObjectPtr<USkeletalMesh>> RandomShirts;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Costume")
+	TArray<TObjectPtr<USkeletalMesh>> RandomPants;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Costume")
+	TArray<TObjectPtr<USkeletalMesh>> RandomAccessory;
+
+#pragma endregion
+};
