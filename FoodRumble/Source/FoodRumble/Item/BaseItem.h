@@ -64,6 +64,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void DestroyItem();
 
-	//UFUNCTION(NetMulticast, Reliable)
-	//void Multicast_PlaySpawnEffect();
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ActivateEffect(AActor* TargetActor);
 };

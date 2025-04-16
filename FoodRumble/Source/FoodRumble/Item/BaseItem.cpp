@@ -8,16 +8,8 @@ ABaseItem::ABaseItem()
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RootComponent"));
 	RootComponent = MeshComponent;
-	RootComponent->SetWorldScale3D(FVector(0.7f));
+	RootComponent->SetWorldScale3D(FVector(0.6f));
 	
-	/*MeshComponent->SetSimulatePhysics(true);
-	MeshComponent->SetEnableGravity(true);
-	MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	MeshComponent->SetCollisionObjectType(ECC_PhysicsBody);
-	MeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
-	MeshComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	MeshComponent->BodyInstance.bUseCCD = true;*/
-
 	//for overlap collision
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
 	CollisionSphere->SetSphereRadius(60.f);
@@ -27,7 +19,7 @@ ABaseItem::ABaseItem()
 
 	NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
 	NiagaraComponent->SetupAttachment(RootComponent);
-	NiagaraComponent->SetRelativeLocation(FVector(0.f, 0.f, -42.f));
+	
 
 	BubbleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BubbleMesh"));
 	BubbleMesh->SetupAttachment(RootComponent);
@@ -78,12 +70,14 @@ void ABaseItem::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Othe
 	if (OtherActor && OtherActor != this)
 	{
 		ACharacter* PlayerCharacter = Cast<ACharacter>(OtherActor);
-		if (PlayerCharacter)
+		if (PlayerCharacter && HasAuthority())
 		{
+			//Only Server can ActivateItem
 			UE_LOG(LogTemp, Warning, TEXT("[baseItem]player overlapped"));
 			CachedActor = OtherActor;
 			ActivateItem(PlayerCharacter);
 			DestroyItem();
+			Multicast_ActivateEffect(PlayerCharacter);
 		}
 		
 	}
@@ -101,7 +95,7 @@ void ABaseItem::DestroyItem()
 }
 
 
-//void ABaseItem::Multicast_PlaySpawnEffect()
-//{
-//
-//}
+void ABaseItem::Multicast_ActivateEffect_Implementation(AActor* TargetActor)
+{
+
+}
