@@ -17,6 +17,9 @@ public:
 	AFRBreakableObject();
 
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(
+		TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateHitCount();
@@ -30,6 +33,13 @@ public:
 	void OnHit();
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnBroken();
+
+	UFUNCTION()
+	void OnRep_Broken();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_OnHit();
+
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -46,9 +56,11 @@ public:
 	TObjectPtr<AFRObjectSpawner> ObjSpawner;
 		
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 CurrentHitCount;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UPROPERTY(ReplicatedUsing = OnRep_Broken)
 	bool bIsBroken;
+
+	UPROPERTY(Replicated, BlueprintReadWrite, EditAnywhere, Category = "BreakableObject")
+	int32 CurrentHitCount;
+	
 	
 };
