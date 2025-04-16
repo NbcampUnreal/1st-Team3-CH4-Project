@@ -10,11 +10,14 @@ AFRObjectSpawner::AFRObjectSpawner()
 	bIsSpawnPaused(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 
 }
 
 AActor* AFRObjectSpawner::SpawnAtIndex(int32 Index)
 {
+	if (!HasAuthority()) return nullptr;
+
 	if (SpawnPoints.IsValidIndex(Index) && IsValid(SpawnPoints[Index]))
 	{
 		if (!SpawnedObj.IsValidIndex(Index) || !IsValid(SpawnedObj[Index]))
@@ -134,12 +137,15 @@ void AFRObjectSpawner::BeginPlay()
 	bIsSpawnPaused = false;
 	
 	SpawnedObj.SetNum(SpawnedObj.Num());
-
-	GetWorld()->GetTimerManager().SetTimer(
-		SpawnTimerHandle,
-		this,
-		&AFRObjectSpawner::SpawnRandom,
-		SpawnInterval,
-		true, InitialDelay);
+		
+	if (HasAuthority())
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			SpawnTimerHandle,
+			this,
+			&AFRObjectSpawner::SpawnRandom,
+			SpawnInterval, true,
+			InitialDelay);
+	}
 
 }
