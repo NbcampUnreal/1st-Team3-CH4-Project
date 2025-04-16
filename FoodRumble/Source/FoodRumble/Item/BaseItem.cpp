@@ -21,6 +21,7 @@ ABaseItem::ABaseItem()
 	CollisionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionSphere"));
 	CollisionSphere->SetSphereRadius(60.f);
 	CollisionSphere->SetupAttachment(RootComponent);
+	CollisionSphere->SetWorldScale3D(FVector(1.4f));
 	//CollisionSphere->SetRelativeLocation(FVector(0.f, 0.f, 42.f));
 
 	NiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("NiagaraComponent"));
@@ -28,7 +29,7 @@ ABaseItem::ABaseItem()
 	NiagaraComponent->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 
 	BubbleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BubbleMesh"));
-	BubbleMesh->SetupAttachment(CollisionSphere);
+	BubbleMesh->SetupAttachment(RootComponent);
 	BubbleMesh->SetWorldScale3D(FVector(1.3f));
 	//BubbleMesh->SetRelativeLocation(FVector(0.f, 0.f, 42.f));
 
@@ -45,6 +46,9 @@ ABaseItem::ABaseItem()
 	{
 		BubbleMesh->SetMaterial(0, BubbleMat.Object);
 	}
+
+	bReplicates = true;
+	SetReplicates(true);
 }
 
 void ABaseItem::BeginPlay()

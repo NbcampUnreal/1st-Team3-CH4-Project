@@ -3,6 +3,7 @@
 
 ASpawnVolume::ASpawnVolume()
 {
+	bReplicates = true;
 
 	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	SetRootComponent(Scene);
@@ -17,7 +18,10 @@ ASpawnVolume::ASpawnVolume()
 void ASpawnVolume::BeginPlay()
 {
 	Super::BeginPlay();
-	StartSpawning();
+	if (HasAuthority())
+	{
+		StartSpawning();
+	}
 }
 
 
@@ -45,11 +49,11 @@ FVector ASpawnVolume::GetRandomPointInVolume()
 	//y
 	float Y = FMath::FRandRange(-BoxExtent.Y, BoxExtent.Y);
 	//z
-	float Z = BoxOrigin.Z;
+	float Z = FMath::FRandRange(-BoxExtent.Z, BoxExtent.Z);
 	//x
-	float X = BoxOrigin.X;
+	float X = FMath::FRandRange(-BoxExtent.X, BoxExtent.X);
 
-	FVector NewLocation = FVector(X, BoxOrigin.Y + Y, Z);
+	FVector NewLocation = FVector(BoxOrigin.X + X, BoxOrigin.Y + Y, BoxOrigin.Z + Z);
 
 	return NewLocation;
 }
@@ -108,7 +112,7 @@ FItemSpawnRow* ASpawnVolume::GetRandomItem() const
 //spawns Item from ItemClass
 void ASpawnVolume::SpawnItem(TSubclassOf<AActor> ItemClass)
 {
-	if (!ItemClass) return;
+	if (!HasAuthority()|| !ItemClass) return;
 
 	FVector SpawnLocation = GetRandomPointInVolume();
 
