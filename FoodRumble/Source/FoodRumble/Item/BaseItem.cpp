@@ -39,6 +39,9 @@ ABaseItem::ABaseItem()
 	{
 		BubbleMesh->SetMaterial(0, BubbleMat.Object);
 	}
+
+	bReplicates = true;
+	SetReplicates(true);
 }
 
 void ABaseItem::BeginPlay()
