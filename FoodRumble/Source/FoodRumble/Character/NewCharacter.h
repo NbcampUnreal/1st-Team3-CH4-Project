@@ -97,7 +97,7 @@ public:
 
 public:
 	void CheckAttackHit();
-
+	
 	UFUNCTION()
 	void OnDeath();
 
@@ -137,6 +137,36 @@ protected:
 	FTimerHandle StopMoveHandle;
 #pragma endregion
 
+#pragma region Guard
+
+public:
+	void CheckGuard();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPCGuard();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPCGuardEnd();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCGuard();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCGuardEnd();
+
+	UFUNCTION()
+	void OnRep_IsInvincible();
+
+	void PlayGuardMontage();
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> GuardMontage;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_IsInvincible)
+	bool bIsInvincible;
+#pragma endregion
+
 #pragma region Input
 private:
 	void HandleMoveInput(const FInputActionValue& InValue);
@@ -144,6 +174,10 @@ private:
 	void HandleLookInput(const FInputActionValue& InValue);
 
 	void HandleAttackInput(const FInputActionValue& InValue);
+
+	void HandleGuardInputStart(const FInputActionValue& InValue);
+
+	void HandleGuardInputEnd(const FInputActionValue& InValue);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
@@ -160,6 +194,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
 	TObjectPtr<UInputAction> AttackAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
+	TObjectPtr<UInputAction> GuardAction;
 
 #pragma endregion
 

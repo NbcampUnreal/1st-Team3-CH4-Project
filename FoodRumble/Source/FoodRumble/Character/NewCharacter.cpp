@@ -14,6 +14,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Net/UnrealNetwork.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 ANewCharacter::ANewCharacter()
 	:bCanAttack(true)
@@ -102,6 +103,9 @@ void ANewCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &ThisClass::StopJumping);
 
 	EIC->BindAction(AttackAction, ETriggerEvent::Started, this, &ThisClass::HandleAttackInput);
+
+	EIC->BindAction(GuardAction, ETriggerEvent::Triggered, this, &ThisClass::HandleGuardInputStart);
+	EIC->BindAction(GuardAction, ETriggerEvent::Completed, this, &ThisClass::HandleGuardInputEnd);
 }
 
 void ANewCharacter::BeginPlay()
@@ -131,6 +135,10 @@ void ANewCharacter::BeginPlay()
 	{
 		AttackMontagePlayTime = AttackMontage->GetPlayLength();
 	}
+	/*if (IsValid(GuardMontage))
+	{
+		GuardMontagePlayTime = GuardMontage->GetPlayLength();
+	}*/
 }
 
 void ANewCharacter::OnRep_CostumeChanged()
@@ -203,17 +211,18 @@ void ANewCharacter::CheckAttackHit()
 			}					
 			for (auto const& DamagedCharacter : DamagedCharacters)
 			{
-				DamagedCharacter->LaunchCharacter(Forward * 1000.f, false, false);		
-
 				ANewCharacter* NewCharacter = Cast<ANewCharacter>(DamagedCharacter);
-				if (IsValid(NewCharacter))
+
+				if (IsValid(NewCharacter) && !NewCharacter->bIsInvincible)
 				{
 					NewCharacter->StopMoveWhenAttacked();
+					NewCharacter->LaunchCharacter(Forward * 1000.f, false, false);				
 				}
+				//DamagedCharacter->LaunchCharacter(Forward * 1000.f, false, false);		
 			}
 		}		
-		FColor DrawColor = bIsHitDetected ? FColor::Green : FColor::Red;		
-		MulticastRPCDrawDebugSphere(DrawColor, Start, End, Forward);
+		/*FColor DrawColor = bIsHitDetected ? FColor::Green : FColor::Red;		
+		MulticastRPCDrawDebugSphere(DrawColor, Start, End, Forward);*/
 	}
 }
 
@@ -320,6 +329,96 @@ void ANewCharacter::CanMoveTimerElapsed()
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 }
 
+void ANewCharacter::CheckGuard()
+{
+	
+}
+
+void ANewCharacter::ServerRPCGuard_Implementation()
+{	
+	MulticastRPCGuard();
+}
+
+void ANewCharacter::ServerRPCGuardEnd_Implementation()
+{
+	MulticastRPCGuardEnd();
+}
+
+void ANewCharacter::MulticastRPCGuard_Implementation()
+{
+	if (HasAuthority())
+	{
+		bIsInvincible = true;
+	}
+	//UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("invincible %d"), bIsInvincible), true, true, FLinearColor::Green, 5.f);
+	PlayGuardMontage();
+}
+
+void ANewCharacter::MulticastRPCGuardEnd_Implementation()
+{
+	if (HasAuthority())
+	{
+		bIsInvincible = false;
+	}
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (IsValid(AnimInstance))
+	{
+		AnimInstance->StopAllMontages(0.f);
+	}
+
+	//child actor play montage
+	const TArray<USceneComponent*> ChildrenArray = GetMesh()->GetAttachChildren();
+
+	for (USceneComponent* Child : ChildrenArray)
+	{
+		if (USkeletalMeshComponent* SubMesh = Cast<USkeletalMeshComponent>(Child))
+		{
+			if (UAnimInstance* AnimInst = SubMesh->GetAnimInstance())
+			{
+				AnimInst->StopAllMontages(0.f);
+			}
+		}
+	}
+}
+
+void ANewCharacter::OnRep_IsInvincible()
+{
+	/*if (bIsInvincible && HasAuthority())
+	{
+		GetCharacterMovement()->SetMovementMode(MOVE_None);
+	}
+	else
+	{
+		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	}*/
+}
+
+void ANewCharacter::PlayGuardMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (IsValid(AnimInstance))
+	{
+		AnimInstance->StopAllMontages(0.f);
+		AnimInstance->Montage_Play(GuardMontage);
+	}
+
+	//child actor play montage
+	const TArray<USceneComponent*> ChildrenArray = GetMesh()->GetAttachChildren();
+
+	for (USceneComponent* Child : ChildrenArray)
+	{
+		if (USkeletalMeshComponent* SubMesh = Cast<USkeletalMeshComponent>(Child))
+		{
+			if (UAnimInstance* AnimInst = SubMesh->GetAnimInstance())
+			{
+				AnimInst->Montage_Play(GuardMontage);
+			}
+		}
+	}
+}
+
 void ANewCharacter::HandleMoveInput(const FInputActionValue& InValue)
 {
 	if (!IsValid(Controller))
@@ -362,3 +461,17 @@ void ANewCharacter::HandleAttackInput(const FInputActionValue& InValue)
 	}
 }
 
+void ANewCharacter::HandleGuardInputStart(const FInputActionValue& InValue)
+{
+	if (!GetCharacterMovement()->IsFalling())
+	{
+		GetCharacterMovement()->SetMovementMode(MOVE_None);
+		ServerRPCGuard();
+	}
+}
+
+void ANewCharacter::HandleGuardInputEnd(const FInputActionValue& InValue)
+{
+	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+	ServerRPCGuardEnd();
+}

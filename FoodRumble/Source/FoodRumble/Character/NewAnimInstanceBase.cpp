@@ -36,3 +36,12 @@ void UNewAnimInstanceBase::AnimNotify_CheckAttackHit()
 		NewPlayerCharacter->CheckAttackHit();
 	}
 }
+
+void UNewAnimInstanceBase::AnimNotify_CheckGuard()
+{
+	ANewCharacter* NewPlayerCharacter = Cast<ANewCharacter>(OwnerCharacter);
+	if (IsValid(NewPlayerCharacter))
+	{
+		NewPlayerCharacter->CheckGuard();
+	}
+}
