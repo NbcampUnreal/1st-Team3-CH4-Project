@@ -67,6 +67,7 @@ void ASpawnVolume::SpawnRandomItem()
 		if (UClass* ActualClass = SelectedRow->ItemClass.Get())
 		{
 			SpawnItem(ActualClass);
+			//UE_LOG(LogTemp, Warning, TEXT("SpawnLocation: %s"), *SpawnLocation.ToString());
 		}
 	}
 

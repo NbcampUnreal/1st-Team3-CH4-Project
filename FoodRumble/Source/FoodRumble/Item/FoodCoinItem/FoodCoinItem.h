@@ -14,7 +14,7 @@ public:
 
 	AFoodCoinItem();
 
-
+	
 protected:
 	virtual void ActivateItem_Implementation(AActor* TargetActor) override;
 };

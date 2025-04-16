@@ -2,6 +2,8 @@
 
 ASpeedUpItem::ASpeedUpItem()
 {
+	bReplicates = true;
+
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem>NiagaraEffectAsset(TEXT("/Game/YJ_Item/FX/sA_PickupSet_1/Fx/NiagaraSystems/NS_Pickup_3.NS_Pickup_3"));
 	if (NiagaraEffectAsset.Succeeded())
 	{
