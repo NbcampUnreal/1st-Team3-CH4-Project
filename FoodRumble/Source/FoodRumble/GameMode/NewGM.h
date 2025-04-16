@@ -19,6 +19,8 @@ public:
 
 	virtual void Logout(AController* Existing) override;
 
+	void OnCharacterDead(ANewPlayerController* InController);
+
 private:
 	UFUNCTION()
 	void OnMainTimerElapsed();
@@ -32,21 +34,22 @@ private:
 	UFUNCTION()
 	void OnMainLoopTimerElapsed();
 
+
 public:
 	FTimerHandle MainTimerHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 WaitingTime = 5;
+	int32 WaitingTime = 10;
 
-	int32 RemainWaitingTimeForPlaying = 5;
+	int32 RemainWaitingTimeForPlaying = 10;
 
 	int32 MinimumPlayerCountForPlaying = 2;
 
 	//Game Sytem
 	FTimerHandle MainLoopTimerHandle;
 
-	int32 MainLoopPlayingTime = 20;
-	int32 RemainMainLoopPlayingTime = 20;
+	int32 MainLoopPlayingTime = 60;
+	int32 RemainMainLoopPlayingTime = 60;
 	
 	UPROPERTY(EditAnywhere, Category = "Spawn")
 	TArray<FVector> SpawnLocations;

@@ -97,6 +97,9 @@ public:
 
 public:
 	void CheckAttackHit();
+	
+	UFUNCTION()
+	void OnDeath();
 
 protected:
 	UFUNCTION(Server,Reliable)
@@ -108,10 +111,20 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPCDrawDebugSphere(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCRespawnCharacter();
+
 	UFUNCTION()
 	void OnRep_CanAttack();
 
 	void PlayMeleeAttackMontage();
+
+	UFUNCTION()
+	void StopMoveWhenAttacked();
+
+	void CanMoveTimerElapsed();
+
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UAnimMontage>AttackMontage;
@@ -121,6 +134,37 @@ protected:
 
 	float AttackMontagePlayTime;
 
+	FTimerHandle StopMoveHandle;
+#pragma endregion
+
+#pragma region Guard
+
+public:
+	void CheckGuard();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPCGuard();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPCGuardEnd();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCGuard();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCGuardEnd();
+
+	UFUNCTION()
+	void OnRep_IsInvincible();
+
+	void PlayGuardMontage();
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> GuardMontage;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_IsInvincible)
+	bool bIsInvincible;
 #pragma endregion
 
 #pragma region Input
@@ -130,6 +174,10 @@ private:
 	void HandleLookInput(const FInputActionValue& InValue);
 
 	void HandleAttackInput(const FInputActionValue& InValue);
+
+	void HandleGuardInputStart(const FInputActionValue& InValue);
+
+	void HandleGuardInputEnd(const FInputActionValue& InValue);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
@@ -146,6 +194,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
 	TObjectPtr<UInputAction> AttackAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
+	TObjectPtr<UInputAction> GuardAction;
 
 #pragma endregion
 

@@ -27,6 +27,8 @@ public:
 
 	UUserWidget* GetScoreWidget() { return ScoreWidgetInstance; }
 
+	void OnCharacterDead();
+
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
 	FText NotificationText;

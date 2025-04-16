@@ -2,8 +2,10 @@
 
 #include "UI/GameEndWidget.h"
 #include "UI/ScoreBoardWidget.h"
+#include "GameMode/NewGM.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 void ANewPlayerController::BeginPlay()
 {
@@ -32,6 +34,15 @@ void ANewPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 	DOREPLIFETIME(ThisClass, NotificationText);
 	DOREPLIFETIME(ThisClass, MainLoopTimerText);
+}
+
+void ANewPlayerController::OnCharacterDead()
+{
+	ANewGM* NewGM = Cast<ANewGM>(UGameplayStatics::GetGameMode(this));
+	if (IsValid(NewGM) && HasAuthority())
+	{
+		NewGM->OnCharacterDead(this);
+	}
 }
 
 void ANewPlayerController::ClientRPCShowScoreWidget_Implementation()
