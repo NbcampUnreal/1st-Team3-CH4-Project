@@ -1,6 +1,7 @@
 #include "GameMode/NewGM.h"
 
 #include "Character/NewPlayerState.h"
+#include "Character/NewCharacter.h"
 #include "Controller/NewPlayerController.h"
 #include "GameState/NewGS.h"
 #include "Item/SpawnVolume.h"
@@ -45,6 +46,16 @@ void ANewGM::Logout(AController* Existing)
 	}
 }
 
+void ANewGM::OnCharacterDead(ANewPlayerController* InController)
+{
+	if (!IsValid(InController))
+	{
+		return;
+	}
+	//DeadPlayerControllers.Add(InController);
+}
+
+
 void ANewGM::OnMainTimerElapsed()
 {
 	ANewGS* NewGS = GetGameState<ANewGS>();
@@ -70,13 +81,14 @@ void ANewGM::OnMainTimerElapsed()
 			{
 				NotificationString = FString::Printf(TEXT("Wait %d seconds for playing"), RemainWaitingTimeForPlaying);
 
-				RemainWaitingTimeForPlaying--;
 			}
 			if (RemainWaitingTimeForPlaying <= 0)
 			{
 				NotificationString = FString::Printf(TEXT("Play!"));
 				NewGS->MatchState = EMatchState::Playing;
 			}
+
+			RemainWaitingTimeForPlaying--;
 
 			NotifyToAllPlayer(NotificationString);
 			break;
@@ -98,7 +110,7 @@ void ANewGM::OnMainTimerElapsed()
 			{				
 				for (int32 i = 0; i < SpawnLocations.Num(); ++i)
 				{
-					GetWorld()->SpawnActor<ASpawnVolume>(SpawnVolumeClass, SpawnLocations[i] + FVector(0.f, 0.f, 5.f), FRotator::ZeroRotator);
+					GetWorld()->SpawnActor<ASpawnVolume>(SpawnVolumeClass, SpawnLocations[i] + FVector(0.f, 0.f, 25.f), FRotator::ZeroRotator);
 				}
 			}
 			NotifyToAllPlayerTime(TimerString);

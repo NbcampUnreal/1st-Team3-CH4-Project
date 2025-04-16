@@ -98,6 +98,9 @@ public:
 public:
 	void CheckAttackHit();
 
+	UFUNCTION()
+	void OnDeath();
+
 protected:
 	UFUNCTION(Server,Reliable)
 	void ServerRPCAttack();
@@ -108,10 +111,20 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPCDrawDebugSphere(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCRespawnCharacter();
+
 	UFUNCTION()
 	void OnRep_CanAttack();
 
 	void PlayMeleeAttackMontage();
+
+	UFUNCTION()
+	void StopMoveWhenAttacked();
+
+	void CanMoveTimerElapsed();
+
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UAnimMontage>AttackMontage;
@@ -121,6 +134,7 @@ protected:
 
 	float AttackMontagePlayTime;
 
+	FTimerHandle StopMoveHandle;
 #pragma endregion
 
 #pragma region Input

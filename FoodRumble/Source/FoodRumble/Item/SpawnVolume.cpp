@@ -49,12 +49,12 @@ FVector ASpawnVolume::GetRandomPointInVolume()
 	//y
 	float Y = FMath::FRandRange(-BoxExtent.Y, BoxExtent.Y);
 	//z
-	//float Z = FMath::FRandRange(-BoxExtent.Z, BoxExtent.Z);
-	float Z = BoxOrigin.Z;
+	float Z = FMath::FRandRange(-BoxExtent.Z, BoxExtent.Z);
+	//float Z = BoxOrigin.Z;
 	//x
 	float X = FMath::FRandRange(-BoxExtent.X, BoxExtent.X);
 
-	FVector NewLocation = FVector(BoxOrigin.X + X, BoxOrigin.Y + Y, Z);
+	FVector NewLocation = FVector(BoxOrigin.X + X, BoxOrigin.Y + Y, BoxOrigin.Z + Z);
 
 	return NewLocation;
 }

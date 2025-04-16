@@ -2,8 +2,9 @@
 
 #include "Item/HJItem.h"
 #include "Item/FoodCoinItem/FoodCoinItem.h"
-#include "Character/NewPlayerState.h"
 #include "Item/FoodCoinItem/PlayerCoinComponent.h"
+#include "Controller/NewPlayerController.h"
+#include "Character/NewPlayerState.h"
 
 #include "Components/SceneComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -199,13 +200,36 @@ void ANewCharacter::CheckAttackHit()
 				{
 					DamagedCharacters.Add(DamagedCharacter);
 				}
-			}			
+			}					
+			for (auto const& DamagedCharacter : DamagedCharacters)
+			{
+				DamagedCharacter->LaunchCharacter(Forward * 1000.f, false, false);		
+
+				ANewCharacter* NewCharacter = Cast<ANewCharacter>(DamagedCharacter);
+				if (IsValid(NewCharacter))
+				{
+					NewCharacter->StopMoveWhenAttacked();
+				}
+			}
 		}		
 		FColor DrawColor = bIsHitDetected ? FColor::Green : FColor::Red;		
 		MulticastRPCDrawDebugSphere(DrawColor, Start, End, Forward);
 	}
 }
 
+void ANewCharacter::OnDeath()
+{
+	ANewPlayerController* NewPC = GetController<ANewPlayerController>();
+	if (IsValid(NewPC) && HasAuthority())
+	{
+		NewPC->OnCharacterDead();
+		MulticastRPCRespawnCharacter();
+	}
+	/*if (IsValid(NewPC) && IsLocallyControlled())
+	{
+		ClientRPCRespawnCharacter();
+	}*/
+}
 
 void ANewCharacter::ServerRPCAttack_Implementation()
 {
@@ -239,6 +263,11 @@ void ANewCharacter::MulticastRPCDrawDebugSphere_Implementation(const FColor& Dra
 	FVector CapsuleOrigin = TraceStart + (TraceEnd - TraceStart) * 0.5f;
 	float CapsuleHalfHeight = MeleeAttackRange * 0.5f;
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, MeleeAttackRadius, FRotationMatrix::MakeFromZ(Forward).ToQuat(), DrawColor, false, 5.f);
+}
+
+void ANewCharacter::MulticastRPCRespawnCharacter_Implementation()
+{	
+	SetActorLocation(FVector(0.f, 0.f, 20.f));	
 }
 
 
@@ -277,6 +306,18 @@ void ANewCharacter::PlayMeleeAttackMontage()
 			}
 		}
 	}
+}
+
+void ANewCharacter::StopMoveWhenAttacked()
+{
+	GetWorld()->GetTimerManager().SetTimer(StopMoveHandle, this, &ThisClass::CanMoveTimerElapsed, 2.f, false);
+	GetCharacterMovement()->MaxWalkSpeed = 0.f;
+}
+
+void ANewCharacter::CanMoveTimerElapsed()
+{
+	GetWorld()->GetTimerManager().ClearTimer(StopMoveHandle);
+	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 }
 
 void ANewCharacter::HandleMoveInput(const FInputActionValue& InValue)
