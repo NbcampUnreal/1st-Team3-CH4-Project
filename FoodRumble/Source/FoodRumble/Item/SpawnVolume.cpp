@@ -27,7 +27,7 @@ void ASpawnVolume::BeginPlay()
 
 void ASpawnVolume::StartSpawning()
 {
-	float RandomSpawnTime = FMath::FRandRange(3.0f, 6.0f);
+	float RandomSpawnTime = FMath::FRandRange(7.0f, 10.0f);
 
 	GetWorldTimerManager().SetTimer(
 		SpawnTimerHandle,
@@ -49,11 +49,12 @@ FVector ASpawnVolume::GetRandomPointInVolume()
 	//y
 	float Y = FMath::FRandRange(-BoxExtent.Y, BoxExtent.Y);
 	//z
-	float Z = FMath::FRandRange(-BoxExtent.Z, BoxExtent.Z);
+	//float Z = FMath::FRandRange(-BoxExtent.Z, BoxExtent.Z);
+	float Z = BoxOrigin.Z;
 	//x
 	float X = FMath::FRandRange(-BoxExtent.X, BoxExtent.X);
 
-	FVector NewLocation = FVector(BoxOrigin.X + X, BoxOrigin.Y + Y, BoxOrigin.Z + Z);
+	FVector NewLocation = FVector(BoxOrigin.X + X, BoxOrigin.Y + Y, Z);
 
 	return NewLocation;
 }
@@ -129,5 +130,5 @@ void ASpawnVolume::SpawnItem(TSubclassOf<AActor> ItemClass)
 		UE_LOG(LogTemp, Warning, TEXT("Failed to spawn Item: %s"), *ItemClass->GetName());
 		return;
 	}
-	SpawnedActor->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+	//SpawnedActor->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 }
