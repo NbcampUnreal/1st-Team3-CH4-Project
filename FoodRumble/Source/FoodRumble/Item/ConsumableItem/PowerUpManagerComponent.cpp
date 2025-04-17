@@ -22,7 +22,7 @@ void UPowerUpManagerComponent::AddPoweredUpPlayer(ACharacter* Player)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Character ate powerupItem again : %s"), *Player->GetName());
 			GetWorld()->GetTimerManager().ClearTimer(Info.ExpireTimer);
-			GetWorld()->GetTimerManager().SetTimer(Info.ExpireTimer, FTimerDelegate::CreateUObject(this, &UPowerUpManagerComponent::RemovePoweredUpPlayer, Player), 10.f, false);
+			GetWorld()->GetTimerManager().SetTimer(Info.ExpireTimer, FTimerDelegate::CreateUObject(this, &UPowerUpManagerComponent::RemovePoweredUpPlayer, Player), 5.f, false);
 			return;
 		}
 	}
@@ -30,7 +30,7 @@ void UPowerUpManagerComponent::AddPoweredUpPlayer(ACharacter* Player)
 	FPowerUpInfo NewInfo;
 	NewInfo.Character = Player;
 	UE_LOG(LogTemp, Warning, TEXT("Character ate powerupItem(first) : %s"), *Player->GetName());
-	GetWorld()->GetTimerManager().SetTimer(NewInfo.ExpireTimer, FTimerDelegate::CreateUObject(this, &UPowerUpManagerComponent::RemovePoweredUpPlayer, Player), 10.f, false);
+	GetWorld()->GetTimerManager().SetTimer(NewInfo.ExpireTimer, FTimerDelegate::CreateUObject(this, &UPowerUpManagerComponent::RemovePoweredUpPlayer, Player), 5.f, false);
 	PoweredUpPlayers.Add(NewInfo);
 }
 
