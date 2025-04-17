@@ -14,6 +14,8 @@ void ANewGM::BeginPlay()
 
 	RemainWaitingTimeForPlaying = WaitingTime;
 	RemainMainLoopPlayingTime = MainLoopPlayingTime;	
+	bCanStartGame = false;
+	bIsReady = false;
 }
 
 void ANewGM::PostLogin(APlayerController* NewPlayer)
@@ -72,38 +74,44 @@ void ANewGM::OnMainTimerElapsed()
 		{
 			FString NotificationString = FString::Printf(TEXT(""));
 
-			if (TotalPlayerControllers.Num() < MinimumPlayerCountForPlaying)
+			if (TotalPlayerControllers.Num() < MinimumPlayerCountForPlaying && !bCanStartGame)
 			{
 				NotificationString = FString::Printf(TEXT("Wait another player"));
 				RemainWaitingTimeForPlaying = WaitingTime;
 			}
-			else
+			if (TotalPlayerControllers.Num() >= MinimumPlayerCountForPlaying && !bCanStartGame)
 			{
-				NotificationString = FString::Printf(TEXT("Wait %d seconds for playing"), RemainWaitingTimeForPlaying);
-
+				NotificationString = FString::Printf(TEXT("Wait for Start Game (host can start)"));
+				bIsReady = true;
 			}
+			else if(bCanStartGame)
+			{
+				NotificationString = FString::Printf(TEXT("Wait %d seconds for playing"), RemainWaitingTimeForPlaying);				
+				RemainWaitingTimeForPlaying--;
+			}			
 			if (RemainWaitingTimeForPlaying <= 0)
 			{
 				NotificationString = FString::Printf(TEXT("Play!"));
 				NewGS->MatchState = EMatchState::Playing;
-			}
-
-			RemainWaitingTimeForPlaying--;
+				for (auto PC : TotalPlayerControllers)
+				{
+					PC->SetInputMode(FInputModeGameOnly());
+				}
+			}			
 
 			NotifyToAllPlayer(NotificationString);
 			break;
 		}
 	case EMatchState::Playing:
-		{
-			/*for (auto PC : TotalPlayerControllers)
+		{			
+			for (auto PC : TotalPlayerControllers)
 			{
-				ANewCharacter* NewCharacter = Cast<ANewCharacter>(PC->GetOwner());
 				ANewPlayerState* NewPS = PC->GetPlayerState<ANewPlayerState>();
-				if (IsValid(NewCharacter) && IsValid(NewPS))
+				if (IsValid(NewPS))
 				{
-					NewCharacter->MulticastRPCUpdateWidget(NewPS->GetPlayerIndex());
+					NewPS->OnRep_PlayerIndex();
 				}
-			}*/
+			}
 			NotifyToAllPlayerScore();
 			GetWorldTimerManager().SetTimer(MainLoopTimerHandle, this, &ThisClass::OnMainLoopTimerElapsed, MainLoopPlayingTime, false);
 			RemainMainLoopPlayingTime--;
@@ -127,8 +135,6 @@ void ANewGM::OnMainTimerElapsed()
 		}
 	case EMatchState::Ending:
 		{			
-			//stop game			
-
 			//check winner
 			int32 WinnerIndex = -1;
 			int32 WinnerScore = 0;
