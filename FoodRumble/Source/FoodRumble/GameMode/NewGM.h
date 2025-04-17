@@ -11,7 +11,7 @@ UCLASS()
 class FOODRUMBLE_API ANewGM : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
 public:
 	virtual void BeginPlay() override;
 
@@ -21,19 +21,25 @@ public:
 
 	void OnCharacterDead(ANewPlayerController* InController);
 
+	//for start game ui
+	UFUNCTION()
+	void CanStartGame() { bCanStartGame = true; }
+
+	UFUNCTION()
+	bool GetIsReady() { return bIsReady; }
+
 private:
 	UFUNCTION()
 	void OnMainTimerElapsed();
 
 	void NotifyToAllPlayer(const FString& NotificationString);
-	
+
 	void NotifyToAllPlayerScore();
 
 	void NotifyToAllPlayerTime(const FString& NotificationString);
 
 	UFUNCTION()
 	void OnMainLoopTimerElapsed();
-
 
 public:
 	FTimerHandle MainTimerHandle;
@@ -64,4 +70,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spawn")
 	TSubclassOf<ASpawnVolume> SpawnVolumeClass;
 
+private:
+	bool bCanStartGame;
+	bool bIsReady;
 };

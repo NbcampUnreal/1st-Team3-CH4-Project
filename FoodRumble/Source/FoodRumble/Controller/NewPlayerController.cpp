@@ -28,6 +28,17 @@ void ANewPlayerController::BeginPlay()
 			NotificationTextUIInstance->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
+
+	if (IsValid(GameStartWidgetClass))
+	{
+		GameStartWidgetInstance = CreateWidget<UUserWidget>(this, GameStartWidgetClass);
+		if (IsValid(GameStartWidgetInstance) && HasAuthority())
+		{
+			GameStartWidgetInstance->AddToViewport(1);
+			bShowMouseCursor = true;
+			SetInputMode(FInputModeUIOnly());
+		}
+	}
 }
 
 void ANewPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
