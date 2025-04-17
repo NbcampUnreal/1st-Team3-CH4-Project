@@ -25,7 +25,12 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPCShowEndGameWidget(int32 WinnerIndex);
 
+	/*UFUNCTION(Client, Reliable)
+	void ClientRPCUpdateNumberWidget(int32 InIndex);*/
+
 	UUserWidget* GetScoreWidget() { return ScoreWidgetInstance; }
+
+	void OnCharacterDead();
 
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
@@ -52,4 +57,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget")
 	TObjectPtr<UUserWidget> EndGameWidgetInstance;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget")
+	TSubclassOf<UUserWidget> GameStartWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget")
+	TObjectPtr<UUserWidget> GameStartWidgetInstance;
 };

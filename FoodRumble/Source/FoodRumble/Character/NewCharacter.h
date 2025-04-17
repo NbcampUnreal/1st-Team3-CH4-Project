@@ -13,6 +13,7 @@ class USpringArmComponent;
 class UInputMappingContext;
 class UInputAction;
 class UPlayerCoinComponent;
+class UWidgetComponent;
 
 UCLASS()
 class FOODRUMBLE_API ANewCharacter : public ACharacter
@@ -23,6 +24,8 @@ public:
 	ANewCharacter();
 
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void Tick(float DeltaTime) override;
 
 
 #pragma region Overrides Character
@@ -97,6 +100,9 @@ public:
 
 public:
 	void CheckAttackHit();
+	
+	UFUNCTION()
+	void OnDeath();
 
 protected:
 	UFUNCTION(Server,Reliable)
@@ -108,10 +114,20 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPCDrawDebugSphere(const FColor& DrawColor, FVector TraceStart, FVector TraceEnd, FVector Forward);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCRespawnCharacter();
+
 	UFUNCTION()
 	void OnRep_CanAttack();
 
 	void PlayMeleeAttackMontage();
+
+	UFUNCTION()
+	void StopMoveWhenAttacked();
+
+	void CanMoveTimerElapsed();
+
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UAnimMontage>AttackMontage;
@@ -121,6 +137,37 @@ protected:
 
 	float AttackMontagePlayTime;
 
+	FTimerHandle StopMoveHandle;
+#pragma endregion
+
+#pragma region Guard
+
+public:
+	void CheckGuard();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPCGuard();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPCGuardEnd();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCGuard();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCGuardEnd();
+
+	UFUNCTION()
+	void OnRep_IsInvincible();
+
+	void PlayGuardMontage();
+
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> GuardMontage;
+	
+	UPROPERTY(ReplicatedUsing = OnRep_IsInvincible)
+	bool bIsInvincible;
 #pragma endregion
 
 #pragma region Input
@@ -130,6 +177,10 @@ private:
 	void HandleLookInput(const FInputActionValue& InValue);
 
 	void HandleAttackInput(const FInputActionValue& InValue);
+
+	void HandleGuardInputStart(const FInputActionValue& InValue);
+
+	void HandleGuardInputEnd(const FInputActionValue& InValue);
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
@@ -146,6 +197,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
 	TObjectPtr<UInputAction> AttackAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "PlayerCharacter|Input")
+	TObjectPtr<UInputAction> GuardAction;
 
 #pragma endregion
 
@@ -171,5 +225,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Costume")
 	TArray<TObjectPtr<USkeletalMesh>> RandomHair;
 
+#pragma endregion
+
+#pragma region NumberTextWidget
+public:
+	UFUNCTION(Server,Reliable)
+	void ServerRPCUpdateWidget();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCUpdateWidget(int32 InIndex);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<UWidgetComponent> PlayerNumberTextWidget;
 #pragma endregion
 };

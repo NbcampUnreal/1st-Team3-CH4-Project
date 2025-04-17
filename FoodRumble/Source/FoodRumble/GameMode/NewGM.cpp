@@ -1,6 +1,7 @@
 #include "GameMode/NewGM.h"
 
 #include "Character/NewPlayerState.h"
+#include "Character/NewCharacter.h"
 #include "Controller/NewPlayerController.h"
 #include "GameState/NewGS.h"
 #include "Item/SpawnVolume.h"
@@ -13,6 +14,8 @@ void ANewGM::BeginPlay()
 
 	RemainWaitingTimeForPlaying = WaitingTime;
 	RemainMainLoopPlayingTime = MainLoopPlayingTime;	
+	bCanStartGame = false;
+	bIsReady = false;
 }
 
 void ANewGM::PostLogin(APlayerController* NewPlayer)
@@ -45,6 +48,16 @@ void ANewGM::Logout(AController* Existing)
 	}
 }
 
+void ANewGM::OnCharacterDead(ANewPlayerController* InController)
+{
+	if (!IsValid(InController))
+	{
+		return;
+	}
+	//DeadPlayerControllers.Add(InController);
+}
+
+
 void ANewGM::OnMainTimerElapsed()
 {
 	ANewGS* NewGS = GetGameState<ANewGS>();
@@ -61,28 +74,44 @@ void ANewGM::OnMainTimerElapsed()
 		{
 			FString NotificationString = FString::Printf(TEXT(""));
 
-			if (TotalPlayerControllers.Num() < MinimumPlayerCountForPlaying)
+			if (TotalPlayerControllers.Num() < MinimumPlayerCountForPlaying && !bCanStartGame)
 			{
 				NotificationString = FString::Printf(TEXT("Wait another player"));
 				RemainWaitingTimeForPlaying = WaitingTime;
 			}
-			else
+			if (TotalPlayerControllers.Num() >= MinimumPlayerCountForPlaying && !bCanStartGame)
 			{
-				NotificationString = FString::Printf(TEXT("Wait %d seconds for playing"), RemainWaitingTimeForPlaying);
-
-				RemainWaitingTimeForPlaying--;
+				NotificationString = FString::Printf(TEXT("Wait for Start Game (host can start)"));
+				bIsReady = true;
 			}
+			else if(bCanStartGame)
+			{
+				NotificationString = FString::Printf(TEXT("Wait %d seconds for playing"), RemainWaitingTimeForPlaying);				
+				RemainWaitingTimeForPlaying--;
+			}			
 			if (RemainWaitingTimeForPlaying <= 0)
 			{
 				NotificationString = FString::Printf(TEXT("Play!"));
 				NewGS->MatchState = EMatchState::Playing;
-			}
+				for (auto PC : TotalPlayerControllers)
+				{
+					PC->SetInputMode(FInputModeGameOnly());
+				}
+			}			
 
 			NotifyToAllPlayer(NotificationString);
 			break;
 		}
 	case EMatchState::Playing:
-		{
+		{			
+			for (auto PC : TotalPlayerControllers)
+			{
+				ANewPlayerState* NewPS = PC->GetPlayerState<ANewPlayerState>();
+				if (IsValid(NewPS))
+				{
+					NewPS->OnRep_PlayerIndex();
+				}
+			}
 			NotifyToAllPlayerScore();
 			GetWorldTimerManager().SetTimer(MainLoopTimerHandle, this, &ThisClass::OnMainLoopTimerElapsed, MainLoopPlayingTime, false);
 			RemainMainLoopPlayingTime--;
@@ -98,7 +127,7 @@ void ANewGM::OnMainTimerElapsed()
 			{				
 				for (int32 i = 0; i < SpawnLocations.Num(); ++i)
 				{
-					GetWorld()->SpawnActor<ASpawnVolume>(SpawnVolumeClass, SpawnLocations[i] + FVector(0.f, 0.f, 5.f), FRotator::ZeroRotator);
+					GetWorld()->SpawnActor<ASpawnVolume>(SpawnVolumeClass, SpawnLocations[i] + FVector(0.f, 0.f, 25.f), FRotator::ZeroRotator);
 				}
 			}
 			NotifyToAllPlayerTime(TimerString);
@@ -106,8 +135,6 @@ void ANewGM::OnMainTimerElapsed()
 		}
 	case EMatchState::Ending:
 		{			
-			//stop game			
-
 			//check winner
 			int32 WinnerIndex = -1;
 			int32 WinnerScore = 0;
