@@ -53,7 +53,7 @@ void UStartGameButton::OnButtonClicked()
 		ANewGM* NewGM = Cast<ANewGM>(GM);
 		if (IsValid(NewGM))
 		{
-			RemoveFromParent();
+			RemoveFromParent();			
 			NewGM->CanStartGame();
 		}
 	}	

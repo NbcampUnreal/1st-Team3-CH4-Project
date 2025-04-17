@@ -94,7 +94,8 @@ void ANewGM::OnMainTimerElapsed()
 				NotificationString = FString::Printf(TEXT("Play!"));
 				NewGS->MatchState = EMatchState::Playing;
 				for (auto PC : TotalPlayerControllers)
-				{
+				{	
+					PC->bShowMouseCursor = false;
 					PC->SetInputMode(FInputModeGameOnly());
 				}
 			}			
