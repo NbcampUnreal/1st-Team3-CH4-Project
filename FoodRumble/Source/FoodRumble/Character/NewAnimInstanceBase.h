@@ -21,6 +21,9 @@ protected:
 	UFUNCTION()
 	void AnimNotify_CheckAttackHit();
 
+	UFUNCTION()
+	void AnimNotify_CheckGuard();
+
 protected:
 	UPROPERTY()
 	TObjectPtr<ACharacter> OwnerCharacter;

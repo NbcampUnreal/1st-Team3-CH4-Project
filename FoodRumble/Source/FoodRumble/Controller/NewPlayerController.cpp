@@ -1,9 +1,13 @@
 #include "Controller/NewPlayerController.h"
 
+#include "Character/NewCharacter.h"
+#include "Character/NewPlayerState.h"
 #include "UI/GameEndWidget.h"
 #include "UI/ScoreBoardWidget.h"
+#include "GameMode/NewGM.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 void ANewPlayerController::BeginPlay()
 {
@@ -32,6 +36,16 @@ void ANewPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 
 	DOREPLIFETIME(ThisClass, NotificationText);
 	DOREPLIFETIME(ThisClass, MainLoopTimerText);
+}
+
+
+void ANewPlayerController::OnCharacterDead()
+{
+	ANewGM* NewGM = Cast<ANewGM>(UGameplayStatics::GetGameMode(this));
+	if (IsValid(NewGM) && HasAuthority())
+	{
+		NewGM->OnCharacterDead(this);
+	}
 }
 
 void ANewPlayerController::ClientRPCShowScoreWidget_Implementation()
@@ -95,3 +109,23 @@ void ANewPlayerController::ClientRPCShowEndGameWidget_Implementation(int32 Winne
 		ScoreWidgetInstance = nullptr;
 	}
 }
+
+//void ANewPlayerController::ClientRPCUpdateNumberWidget_Implementation(int32 InIndex)
+//{
+//	ANewCharacter* NewCharacter = Cast<ANewCharacter>(GetPawn());
+//	
+//	if (IsValid(NewCharacter))
+//	{	
+//		//UE_LOG(LogTemp, Warning, TEXT("%d"), InIndex);
+//		NewCharacter->SetPlayerNumberTextWidget(InIndex);
+//	}
+//}
+
+//void ANewPlayerController::MulticastRPCUpdateNumberWidget_Implementation(int32 InIndex)
+//{
+//	ANewCharacter* NewCharacter = Cast<ANewCharacter>(GetPawn());
+//	if (IsValid(NewCharacter))
+//	{	
+//		NewCharacter->SetPlayerNumberTextWidget(InIndex);
+//	}
+//}

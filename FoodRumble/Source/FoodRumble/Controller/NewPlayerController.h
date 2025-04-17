@@ -25,7 +25,12 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientRPCShowEndGameWidget(int32 WinnerIndex);
 
+	/*UFUNCTION(Client, Reliable)
+	void ClientRPCUpdateNumberWidget(int32 InIndex);*/
+
 	UUserWidget* GetScoreWidget() { return ScoreWidgetInstance; }
+
+	void OnCharacterDead();
 
 public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite)
