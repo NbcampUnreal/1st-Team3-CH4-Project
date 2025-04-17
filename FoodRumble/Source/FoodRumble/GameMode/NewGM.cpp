@@ -95,6 +95,15 @@ void ANewGM::OnMainTimerElapsed()
 		}
 	case EMatchState::Playing:
 		{
+			/*for (auto PC : TotalPlayerControllers)
+			{
+				ANewCharacter* NewCharacter = Cast<ANewCharacter>(PC->GetOwner());
+				ANewPlayerState* NewPS = PC->GetPlayerState<ANewPlayerState>();
+				if (IsValid(NewCharacter) && IsValid(NewPS))
+				{
+					NewCharacter->MulticastRPCUpdateWidget(NewPS->GetPlayerIndex());
+				}
+			}*/
 			NotifyToAllPlayerScore();
 			GetWorldTimerManager().SetTimer(MainLoopTimerHandle, this, &ThisClass::OnMainLoopTimerElapsed, MainLoopPlayingTime, false);
 			RemainMainLoopPlayingTime--;

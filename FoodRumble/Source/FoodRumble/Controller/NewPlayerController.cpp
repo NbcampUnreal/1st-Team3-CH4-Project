@@ -1,5 +1,7 @@
 #include "Controller/NewPlayerController.h"
 
+#include "Character/NewCharacter.h"
+#include "Character/NewPlayerState.h"
 #include "UI/GameEndWidget.h"
 #include "UI/ScoreBoardWidget.h"
 #include "GameMode/NewGM.h"
@@ -35,6 +37,7 @@ void ANewPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 	DOREPLIFETIME(ThisClass, NotificationText);
 	DOREPLIFETIME(ThisClass, MainLoopTimerText);
 }
+
 
 void ANewPlayerController::OnCharacterDead()
 {
@@ -106,3 +109,23 @@ void ANewPlayerController::ClientRPCShowEndGameWidget_Implementation(int32 Winne
 		ScoreWidgetInstance = nullptr;
 	}
 }
+
+//void ANewPlayerController::ClientRPCUpdateNumberWidget_Implementation(int32 InIndex)
+//{
+//	ANewCharacter* NewCharacter = Cast<ANewCharacter>(GetPawn());
+//	
+//	if (IsValid(NewCharacter))
+//	{	
+//		//UE_LOG(LogTemp, Warning, TEXT("%d"), InIndex);
+//		NewCharacter->SetPlayerNumberTextWidget(InIndex);
+//	}
+//}
+
+//void ANewPlayerController::MulticastRPCUpdateNumberWidget_Implementation(int32 InIndex)
+//{
+//	ANewCharacter* NewCharacter = Cast<ANewCharacter>(GetPawn());
+//	if (IsValid(NewCharacter))
+//	{	
+//		NewCharacter->SetPlayerNumberTextWidget(InIndex);
+//	}
+//}

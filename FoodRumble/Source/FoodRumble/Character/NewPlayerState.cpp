@@ -1,5 +1,7 @@
 #include "Character/NewPlayerState.h"
 
+#include "Character/NewCharacter.h"
+
 #include "Controller/NewPlayerController.h"
 #include "GameState/NewGS.h"
 #include "UI/ScoreBoardWidget.h"
@@ -51,5 +53,16 @@ void ANewPlayerState::OnRep_PlayerScore()
 }
 
 void ANewPlayerState::OnRep_PlayerIndex()
-{
+{		
+	if (ANewPlayerController* NewPC = Cast<ANewPlayerController>(GetOwner()))
+	{
+		if (IsValid(NewPC))
+		{
+			ANewCharacter* NewCharacter = Cast<ANewCharacter>(NewPC->GetPawn());
+			if (IsValid(NewCharacter))
+			{
+				NewCharacter->ServerRPCUpdateWidget();								
+			}			
+		}
+	}	
 }

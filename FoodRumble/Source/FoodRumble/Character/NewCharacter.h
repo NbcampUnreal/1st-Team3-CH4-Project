@@ -13,6 +13,7 @@ class USpringArmComponent;
 class UInputMappingContext;
 class UInputAction;
 class UPlayerCoinComponent;
+class UWidgetComponent;
 
 UCLASS()
 class FOODRUMBLE_API ANewCharacter : public ACharacter
@@ -23,6 +24,8 @@ public:
 	ANewCharacter();
 
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void Tick(float DeltaTime) override;
 
 
 #pragma region Overrides Character
@@ -222,5 +225,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "PlayerCharacter|Costume")
 	TArray<TObjectPtr<USkeletalMesh>> RandomHair;
 
+#pragma endregion
+
+#pragma region NumberTextWidget
+public:
+	UFUNCTION(Server,Reliable)
+	void ServerRPCUpdateWidget();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPCUpdateWidget(int32 InIndex);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TObjectPtr<UWidgetComponent> PlayerNumberTextWidget;
 #pragma endregion
 };

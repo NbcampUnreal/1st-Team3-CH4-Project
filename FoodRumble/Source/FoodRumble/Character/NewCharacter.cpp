@@ -1,11 +1,13 @@
 #include "Character/NewCharacter.h"
 
+#include "Character/NewPlayerState.h"
 #include "Item/HJItem.h"
 #include "Item/FoodCoinItem/FoodCoinItem.h"
 #include "Item/FoodCoinItem/PlayerCoinComponent.h"
 #include "Controller/NewPlayerController.h"
-#include "Character/NewPlayerState.h"
+#include "UI/PlayerNumberText.h"
 
+#include "Components/WidgetComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -15,12 +17,14 @@
 #include "EnhancedInputSubsystems.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ANewCharacter::ANewCharacter()
 	:bCanAttack(true)
 	, AttackMontagePlayTime(0.f)
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -55,6 +59,11 @@ ANewCharacter::ANewCharacter()
 
 	Hair = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Hair"));
 	Hair->SetupAttachment(GetMesh());
+
+	PlayerNumberTextWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PlayerNumberText"));
+	PlayerNumberTextWidget->SetupAttachment(GetMesh());
+
+	PlayerNumberTextWidget->SetWidgetSpace(EWidgetSpace::World);
 }
 
 void ANewCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -66,6 +75,18 @@ void ANewCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& 
 	DOREPLIFETIME(ThisClass, PantsIndex);
 	DOREPLIFETIME(ThisClass, AccessoryIndex);
 	DOREPLIFETIME(ThisClass, HairIndex);
+}
+
+void ANewCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (IsValid(PlayerNumberTextWidget))
+	{
+		FVector WidgetComponentLocation = PlayerNumberTextWidget->GetComponentLocation();
+		FVector LocalPlayerCameraLocation = UGameplayStatics::GetPlayerCameraManager(this, 0)->GetCameraLocation();
+		PlayerNumberTextWidget->SetWorldRotation(UKismetMathLibrary::FindLookAtRotation(WidgetComponentLocation, LocalPlayerCameraLocation));
+	}
 }
 
 
@@ -135,10 +156,15 @@ void ANewCharacter::BeginPlay()
 	{
 		AttackMontagePlayTime = AttackMontage->GetPlayLength();
 	}
-	/*if (IsValid(GuardMontage))
+	
+	if (IsValid(PlayerNumberTextWidget))
 	{
-		GuardMontagePlayTime = GuardMontage->GetPlayLength();
-	}*/
+		UPlayerNumberText* PlayerNumberText = Cast<UPlayerNumberText>(PlayerNumberTextWidget);
+		if (IsValid(PlayerNumberText))
+		{
+			PlayerNumberText->SetOwningActor(GetOwner());
+		}
+	}
 }
 
 void ANewCharacter::OnRep_CostumeChanged()
@@ -474,4 +500,23 @@ void ANewCharacter::HandleGuardInputEnd(const FInputActionValue& InValue)
 {
 	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 	ServerRPCGuardEnd();
+}
+
+void ANewCharacter::ServerRPCUpdateWidget_Implementation()
+{
+	ANewPlayerState* NewPS = GetPlayerState<ANewPlayerState>();
+	if (IsValid(NewPS))
+	{
+		MulticastRPCUpdateWidget(NewPS->GetPlayerIndex());
+	}
+}
+
+void ANewCharacter::MulticastRPCUpdateWidget_Implementation(int32 InIndex)
+{
+	UPlayerNumberText* PNT = Cast<UPlayerNumberText>(PlayerNumberTextWidget->GetWidget());
+	if (IsValid(PNT))
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("%d"), InIndex);
+		PNT->SetPlayerNumber(InIndex);
+	}
 }
