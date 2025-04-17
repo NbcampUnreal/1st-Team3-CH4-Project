@@ -23,6 +23,7 @@
 ANewCharacter::ANewCharacter()
 	:bCanAttack(true)
 	, AttackMontagePlayTime(0.f)
+	,bIsInvincible(false)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -75,6 +76,8 @@ void ANewCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& 
 	DOREPLIFETIME(ThisClass, PantsIndex);
 	DOREPLIFETIME(ThisClass, AccessoryIndex);
 	DOREPLIFETIME(ThisClass, HairIndex);
+
+	DOREPLIFETIME(ThisClass, bIsInvincible);
 }
 
 void ANewCharacter::Tick(float DeltaTime)
@@ -357,35 +360,27 @@ void ANewCharacter::CanMoveTimerElapsed()
 
 void ANewCharacter::CheckGuard()
 {
-	
 }
 
 void ANewCharacter::ServerRPCGuard_Implementation()
 {	
+	bIsInvincible = true;
 	MulticastRPCGuard();
 }
 
 void ANewCharacter::ServerRPCGuardEnd_Implementation()
 {
+	bIsInvincible = false;
 	MulticastRPCGuardEnd();
 }
 
 void ANewCharacter::MulticastRPCGuard_Implementation()
 {
-	if (HasAuthority())
-	{
-		bIsInvincible = true;
-	}
-	//UKismetSystemLibrary::PrintString(this, FString::Printf(TEXT("invincible %d"), bIsInvincible), true, true, FLinearColor::Green, 5.f);
 	PlayGuardMontage();
 }
 
 void ANewCharacter::MulticastRPCGuardEnd_Implementation()
 {
-	if (HasAuthority())
-	{
-		bIsInvincible = false;
-	}
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (IsValid(AnimInstance))
@@ -410,14 +405,7 @@ void ANewCharacter::MulticastRPCGuardEnd_Implementation()
 
 void ANewCharacter::OnRep_IsInvincible()
 {
-	/*if (bIsInvincible && HasAuthority())
-	{
-		GetCharacterMovement()->SetMovementMode(MOVE_None);
-	}
-	else
-	{
-		GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-	}*/
+
 }
 
 void ANewCharacter::PlayGuardMontage()
@@ -449,10 +437,12 @@ void ANewCharacter::HandleMoveInput(const FInputActionValue& InValue)
 {
 	if (!IsValid(Controller))
 	{
-		//UE_LOG(LogTemp, Error, TEXT("Controller is invalid."));
 		return;
 	}
-
+	if (bIsInvincible)
+	{
+		return;
+	}
 	const FVector2D InMovementVector = InValue.Get<FVector2D>();
 
 	const FRotator ControlRotation = Controller->GetControlRotation();
@@ -489,16 +479,11 @@ void ANewCharacter::HandleAttackInput(const FInputActionValue& InValue)
 
 void ANewCharacter::HandleGuardInputStart(const FInputActionValue& InValue)
 {
-	if (!GetCharacterMovement()->IsFalling())
-	{
-		GetCharacterMovement()->SetMovementMode(MOVE_None);
-		ServerRPCGuard();
-	}
+	ServerRPCGuard();
 }
 
 void ANewCharacter::HandleGuardInputEnd(const FInputActionValue& InValue)
 {
-	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 	ServerRPCGuardEnd();
 }
 
@@ -516,7 +501,6 @@ void ANewCharacter::MulticastRPCUpdateWidget_Implementation(int32 InIndex)
 	UPlayerNumberText* PNT = Cast<UPlayerNumberText>(PlayerNumberTextWidget->GetWidget());
 	if (IsValid(PNT))
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("%d"), InIndex);
 		PNT->SetPlayerNumber(InIndex);
 	}
 }
